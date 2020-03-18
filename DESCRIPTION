@@ -1,0 +1,23 @@
+Package: revulyticsR
+Title: Connect To Your Revulytics Data With R
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Chris",
+           family = "Umphlett",
+           role = c("aut", "cre"),
+           email = "christopher.umphlett@gmail.com")
+Description: revulyticsR facilitates making a connection to the 
+Revulytics API and executing various queries. You can use it to
+get active users (daily, monthly, etc) or to query on various
+advanced events and get the results in tidy data frames.
+Suggests: knitr, rmarkdown, ggplot2
+VignetteBuilder: knitr
+Depends: R (>= 3.6.0)
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Imports:
+  dplyr (>= 0.8.4),
+  magrittr (>= 1.5),
+  jsonlite (>= 1.6.1),
+  purrr (>= 0.3.3)
