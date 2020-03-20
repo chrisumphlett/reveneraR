@@ -7,11 +7,11 @@ Authors@R:
            role = c("aut", "cre"),
            email = "christopher.umphlett@gmail.com")
 Description: revulyticsR facilitates making a connection to the 
-Revulytics API and executing various queries. You can use it to
-get active users (daily, monthly, etc) or to query on various
-advanced events and get the results in tidy data frames. The
-Revulytics documentation is available at
-<https://devzone.revulytics.com/docs/API/>.
+  Revulytics API and executing various queries. You can use it to
+  get active users (daily, monthly, etc) or to query on various
+  advanced events and get the results in tidy data frames. The
+  Revulytics documentation is available at
+  <https://devzone.revulytics.com/docs/API/>.
 Suggests: knitr, rmarkdown, ggplot2
 VignetteBuilder: knitr
 Depends: R (>= 3.6.0)
@@ -24,3 +24,4 @@ Imports:
   jsonlite (>= 1.6.1),
   purrr (>= 0.3.3),
   httr (>= 1.4.1)
+RoxygenNote: 7.0.2
