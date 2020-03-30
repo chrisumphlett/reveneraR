@@ -60,11 +60,11 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id, rev_usern
     }
     
     category_event <- purrr::map_dfr(1:length(content_json$results$category), parse_json_into_df) %>%
-      rename(event_name = .data$eventName) %>%
       mutate(event_type = if_else(.data$advanced, "advanced", "basic"),
              date_first_seen = as.Date(.data$dateFirstSeen),
              revulytics_product_id = x) %>%
-      select(.data$revulytics_product_id, .data$category_name, .data$event_name, .data$event_type, .data$date_first_seen)
+      select(.data$revulytics_product_id, .data$category_name, .data$eventName, .data$event_type, .data$date_first_seen) %>%
+      rename(event_name = .data$eventName)
     
   }
   
