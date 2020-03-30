@@ -55,7 +55,7 @@
 
 get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev_end_date, rev_session_id, rev_username) {
   
-  get_results <- function(x, rev_date_type) {
+  get_by_product <- function(x, rev_date_type) {
     request_body <- list(
       user = rev_username,
       sessionId = rev_session_id,
@@ -79,7 +79,8 @@ get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev
     return(iteration_df)
   }
   
-  df <- purrr::map_dfr(rev_product_ids, get_results, rev_date_type)
+  df <- purrr::map_dfr(rev_product_ids, get_by_product, rev_date_type)
   
   return(df)
 }
+
