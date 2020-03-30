@@ -9,7 +9,11 @@ The development version can be installed from GitHub: `devtools::install_github(
 
 ## Usage
 A session must first be established before querying the API. This is done using your Revulytics username and password with `revultyics_auth()`.
-The current version has one function for making requests to the API, `get_active_users()`. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of active users. With this function you can return daily, weekly, or monthly active users for multiple product ids.
+
+The current version has several functions for making requests to the API.
+
+* `get_active_users()`. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of active users. With this function you can return daily, weekly, or monthly active users for multiple product ids.
+* `get_categories_and_events()`. For a list of product ids get all of the categories and events that have been defined (and identify it each is a basic or advanced). This can then be passed into subsequent queries to pull data on multiple events.
 
 You will need your own credentials to use the package. A workflow could be:
 
