@@ -55,6 +55,8 @@
 
 get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev_end_date, rev_session_id, rev_username) {
   
+  . <- NA # prevent variable binding note for the dot in the get_by_product function
+  
   get_by_product <- function(x, rev_date_type) {
     request_body <- list(
       user = rev_username,

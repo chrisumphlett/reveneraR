@@ -56,19 +56,19 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id, rev_usern
       category_name <- content_json$results$category[x]
       event_name <- as.data.frame(content_json$results$categoryEventNames[x]) %>%
         cbind(category_name) %>%
-        mutate(category_name = as.character(category_name))
+        mutate(category_name = as.character(.data$category_name))
     }
     
     category_event <- purrr::map_dfr(1:length(content_json$results$category), parse_json_into_df) %>%
-      rename(event_name = eventName) %>%
-      mutate(event_type = if_else(advanced, "advanced", "basic"),
-             date_first_seen = as.Date(dateFirstSeen),
+      rename(event_name = .data$eventName) %>%
+      mutate(event_type = if_else(.data$advanced, "advanced", "basic"),
+             date_first_seen = as.Date(.data$dateFirstSeen),
              revulytics_product_id = x) %>%
-      select(revulytics_product_id, category_name, event_name, event_type, date_first_seen)
+      select(.data$revulytics_product_id, .data$category_name, .data$event_name, .data$event_type, .data$date_first_seen)
     
   }
   
-  category_event_by_prod <- purrr::map_dfr(prods, get_by_product)
+  category_event_by_prod <- purrr::map_dfr(rev_product_ids, get_by_product)
   return(category_event_by_prod)
 }
 
