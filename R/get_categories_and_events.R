@@ -28,8 +28,6 @@
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
-#' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
-#' end_date <- Sys.Date() - 1
 #' session_id <- revulytics_auth(rev_user, rev_pwd)  
 #' category_event <- get_categories_and_events(product_ids_list, session_id, rev_user)
 #' }
@@ -60,7 +58,10 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id, rev_usern
     }
     
     category_event <- purrr::map_dfr(1:length(content_json$results$category), parse_json_into_df) %>%
-      mutate(event_type = if_else(.data$advanced, "advanced", "basic"),
+      mutate(event_type = case_when(
+                            .data$advanced ~ "ADVANCED",
+                            .data$basic ~ "BASIC",
+                            TRUE ~ "INACTIVE"),
              date_first_seen = as.Date(.data$dateFirstSeen),
              revulytics_product_id = x) %>%
       select(.data$revulytics_product_id, .data$category_name, .data$eventName, .data$event_type, .data$date_first_seen) %>%
