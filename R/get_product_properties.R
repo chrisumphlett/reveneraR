@@ -36,7 +36,7 @@
 
 get_product_properties <- function(rev_product_ids, rev_session_id, rev_username) {
   
-  get_product_categories <- function(x){
+  get_one_product_properties <- function(x){
     request_body <- list(
       user = rev_username,
       sessionId = rev_session_id,
@@ -56,7 +56,7 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
         cbind(properties_category) %>%
         # EVENTUALLY CONVERT ALL TO CHAR WITH ACROSS() from dplyr 1.0.0
         mutate(properties_category = as.character(.data$properties_category),
-               revulytics_product_id = as.character(x),
+               revulytics_product_id = x,
                property_name = as.character(.data$name),
                property_friendly_name = as.character(.data$friendlyName),
                filter_type = as.character(.data$filterType),
@@ -73,7 +73,7 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
     
   }
   
-  all_products_df <- map_dfr(rev_product_ids, get_product_categories)
+  all_products_df <- map_dfr(rev_product_ids, get_one_product_properties)
   return(all_products_df)
     
 }

@@ -32,8 +32,6 @@ secure; this package does not require you to use any one in particular.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
-end_date <- Sys.Date() - 1
 session_id <- revulytics_auth(rev_user, rev_pwd)  
 category_event <- get_categories_and_events(product_ids_list, session_id, rev_user)
 }
