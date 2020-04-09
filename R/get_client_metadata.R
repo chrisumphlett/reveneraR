@@ -35,19 +35,7 @@
 #' }
 
 
-
-
-# for the function, user should provide a list of the property_friendly_names (custom or regular)
-
-RIGHT NOW THIS JUST DOES THE FIRST 200 FOR EACH PRODUCT. NEED TO GO BACK TO ONE PRODUCT, THEN WORK ON THE LOOPING
-
-THIS ALSO IS PULLING PREV SNAGIT VERSION FOR EVERYTHING - IT SHOULDNT BE AVAILABLE
-
-product_properties <- get_product_properties(prods, session_id, rev_user)
-
-desired_properties <- c("Job To Be Done", "Previous Snagit Version", "License Key", "Revulytics Machine ID")
-
-get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, desired_properties) {
+get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, desired_properties, installed_start_date, installed_end_date) {
   
   product_df_base <- tibble(revulytics_product_id = numeric(), client_id = character(),
                             property_friendly_name = character(), property_value = character())
@@ -80,12 +68,16 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, d
                      a,
                      ",\"startAtClientId\":",
                      jsonlite::toJSON(ifelse(exists("content_json"), content_json$nextClientId, NA_character_), auto_unbox = TRUE),
-                     ",\"globalFilters\":{\"dateInstalled\":{\"type\":\"dateRange\",\"min\":\"2020-03-01\", \"max\":\"2020-03-01\"}},",
+                     paste0(",\"globalFilters\":{\"dateInstalled\":{\"type\":\"dateRange\",\"min\":\"",
+                            installed_start_date,
+                            "\",\"max\":\"",
+                            installed_end_date,
+                            "\"}},"),
                      paste0("\"properties\":", jsonlite::toJSON(array(c(custom_property_names)), auto_unbox = TRUE), "}"),
                      # ",\"properties\":[\"licenseKey\",\"C01\",\"C06\",\"machineId\"]}",
       sep = "")
       
-      # print(cat(body))
+      print(cat(body))
       
       # request_body <- list(
       #   user = rev_user,
@@ -153,5 +145,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, d
   
 }
 
-cmdf <- get_client_metadata(prods, session_id, rev_user, c("Job To Be Done", "Previous Snagit Version", "License Key", "Revulytics Machine ID"))
+cmdf <- get_client_metadata(prods, session_id, rev_user, 
+                          c("Job To Be Done", "Previous Snagit Version", "License Key", "Revulytics Machine ID"),
+                          "2020-03-01", "2020-03-01")
 
