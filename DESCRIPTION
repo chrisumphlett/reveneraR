@@ -24,4 +24,4 @@ Imports:
   jsonlite (>= 1.6.1),
   purrr (>= 0.3.3),
   httr (>= 1.4.1)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
