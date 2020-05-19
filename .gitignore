@@ -4,7 +4,3 @@
 .Ruserdata
 testing.R
 testing_from_GH.R
-get_categories_and_events.R
-get_client_metadata.R
-get_event_timeline.R
-get_product_properties.R

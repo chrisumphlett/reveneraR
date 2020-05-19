@@ -23,5 +23,7 @@ Imports:
   magrittr (>= 1.5),
   jsonlite (>= 1.6.1),
   purrr (>= 0.3.3),
-  httr (>= 1.4.1)
+  httr (>= 1.4.1),
+  tidyselect (>= 1.0.0),
+  tidyr (>= 1.0.0)
 RoxygenNote: 7.1.0
