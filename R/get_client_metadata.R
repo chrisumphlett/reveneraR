@@ -62,6 +62,8 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                             property_friendly_name = character(), property_value = character())
   
   get_one_product_metadata <- function(product_iter) {
+    
+    print(paste0("Starting product id ", product_iter))
   
     custom_property_names <- product_properties_df %>%
       filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
@@ -73,7 +75,6 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       select(.data$property_friendly_name) %>%
       pull()
     
-    # print(custom_property_friendly_names)
     i <- 0
     
     keep_going <- TRUE
