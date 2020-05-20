@@ -58,7 +58,7 @@
 
 get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, product_properties_df, desired_properties, installed_start_date, installed_end_date) {
   
-  product_df_base <- tibble(revulytics_product_id = numeric(), client_id = character(),
+  product_df_base <- tibble(revulytics_product_id = character(), client_id = character(),
                             property_friendly_name = character(), property_value = character())
   
   get_one_product_metadata <- function(product_iter) {
@@ -98,7 +98,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                      # ",\"properties\":[\"licenseKey\",\"C01\",\"C06\",\"machineId\"]}",
       sep = "")
       
-      print(cat(body))
+      # print(cat(body))
       
       # request_body <- list(
       #   user = rev_user,
