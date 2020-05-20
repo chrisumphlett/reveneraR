@@ -79,7 +79,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
     keep_going <- TRUE
     
     while (keep_going == TRUE) {
-      print(paste0("iteration ", i))
+      print(paste0("iteration ", i, ", nextClientId = ", content_json$nextClientId))
       
       i <- i + 1
       
@@ -98,45 +98,18 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                      # ",\"properties\":[\"licenseKey\",\"C01\",\"C06\",\"machineId\"]}",
       sep = "")
       
-      # print(cat(body))
-      
-      # request_body <- list(
-      #   user = rev_user,
-      #   sessionId = session_id,
-      #   productId = a,
-      #   startAtClientId = ifelse(exists("content_json"), content_json$nextClientId, NA_character_),
-      #   properties = array(c(custom_property_names)),
-      #   globalFilters = array(c("dateInstalled", list(list(type = "dateRange", min = "2020-03-01", max = "2020-03-02"))))
-      #   # junk = list(list(a = "b"))
-      # )
-      
-      # print(ifelse(exists("content_json"), content_json$nextClientId, NA_character_))
-      
-      # body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
-      # print(cat(body))
-      
-      
-      
       request <- httr::POST("https://api.revulytics.com/reporting/clientPropertyList",
                             body = body,
                             encode = "json")
-      # print(request$status)
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
-      # get_text
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-      print(paste0("reachedEnd = ", content_json$reachedEnd))
       
       build_data_frame <- function(c){
         properties <- as.data.frame(content_json$results[c])
       }
       
-      # print(length(content_json$results))
-      
       product_df <- purrr::map_dfc(1:length(content_json$results), build_data_frame)
-      # print(names(product_df))
       names(product_df)[2:length(content_json$results)] <- c(custom_property_friendly_names)
-      # print(names(product_df))
-      # print(custom_property_friendly_names)
       product_df2 <- product_df %>%
         tidyr::pivot_longer(tidyselect::all_of(custom_property_friendly_names), names_to = "property_friendly_name", values_to = "property_value") %>%
         mutate(#license_key = if_else(licenseKey == "<NULL>", NA_character_, licenseKey),
@@ -145,15 +118,10 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
         rename(client_id = .data$clientId) %>%
         select(.data$revulytics_product_id, .data$client_id, .data$property_friendly_name, .data$property_value) %>%
         filter(!is.na(.data$property_value))
-      
-      # print(head(product_df2))
-      
+
       product_df_base <- bind_rows(product_df2, product_df_base)
-      
-      # print(head(product_df_base))
-      
+
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
-      print(paste0("keep_going = ", keep_going))
       
     }
     
