@@ -42,8 +42,7 @@
 #' @importFrom tidyselect "all_of"
 #' @importFrom tidyr "pivot_longer"
 #' 
-#' @return Data frame with current property values for all clients 
-#' and product ids.
+#' @return Data frame with selected properties for each Client Id.
 #' 
 #' @export
 #' 
@@ -54,7 +53,8 @@
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revulytics_auth(rev_user, rev_pwd)  
 #' product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
-#' client_metadata ## NEED TO FIX THIS
+#' client_metadata <- get_client_metadata(product_ids_list, session_id, rev_user,
+#' product_properties, c("Property1", "Property2"), start_date, end_date)
 #' }
 
 
@@ -86,7 +86,8 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       
       i <- i + 1
       
-      body <- paste0("{\"user\":\"trackerbird@techsmith.com\",\"sessionId\":\"",
+      body <- paste0("{\"user\":", rev_user,
+                     ",\"sessionId\":\"",
                      rev_session_id,
                      "\",\"productId\":",
                      product_iter,
@@ -98,7 +99,6 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                             installed_end_date,
                             "\"}},"),
                      paste0("\"properties\":", jsonlite::toJSON(array(c(custom_property_names)), auto_unbox = TRUE), "}"),
-                     # ",\"properties\":[\"licenseKey\",\"C01\",\"C06\",\"machineId\"]}",
       sep = "")
       
       request <- httr::POST("https://api.revulytics.com/reporting/clientPropertyList",
@@ -117,8 +117,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       names(product_df)[2:length(content_json$results)] <- c(custom_property_friendly_names)
       product_df2 <- product_df %>%
         tidyr::pivot_longer(tidyselect::all_of(custom_property_friendly_names), names_to = "property_friendly_name", values_to = "property_value") %>%
-        mutate(#license_key = if_else(licenseKey == "<NULL>", NA_character_, licenseKey),
-               property_value = if_else(.data$property_value == "<NULL>" | .data$property_value == "", NA_character_, .data$property_value),
+        mutate(property_value = if_else(.data$property_value == "<NULL>" | .data$property_value == "", NA_character_, .data$property_value),
                revulytics_product_id = product_iter) %>%
         rename(client_id = .data$clientId) %>%
         select(.data$revulytics_product_id, .data$client_id, .data$property_friendly_name, .data$property_value) %>%
