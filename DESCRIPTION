@@ -1,17 +1,16 @@
 Package: revulyticsR
 Title: Connect to Your Revulytics Data with R
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person(given = "Chris",
            family = "Umphlett",
            role = c("aut", "cre"),
            email = "christopher.umphlett@gmail.com")
-Description: revulyticsR facilitates making a connection to the 
+Description: Facilitates making a connection to the 
   Revulytics API and executing various queries. You can use it to
-  get active users (daily, monthly, etc) or to query on various
-  advanced events and get the results in tidy data frames. The
+  get transactional data and metadata . The
   Revulytics documentation is available at
-  <https://devzone.revulytics.com/docs/API/>.
+  <https://docs.flexera.com/ui551/report/Content/helplibrary/APIRoot.htm#product-intro_184013195_1066562>.
 Suggests: knitr, rmarkdown, ggplot2
 VignetteBuilder: knitr
 Depends: R (>= 3.6.0)
