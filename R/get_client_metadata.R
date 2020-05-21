@@ -9,7 +9,9 @@
 #' secure; this package does not require you to use any one in particular.
 #' 
 #' This API call can only return 200 Client Ids at a time. It will take a
-#' long time to execute. In order to provide data for troubleshooting 
+#' long time to execute if you have many Client Ids, as the function will
+#' submit requests to the API repeatedly; this may even result in a timeout
+#' error from the server. In order to provide data for troubleshooting 
 #' this function will print some notes to the console after each call. 
 #' It is recommended that you divert the console output to a text file. 
 #' You can do this in multiple ways, including with the sink function.
@@ -80,7 +82,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
     keep_going <- TRUE
     
     while (keep_going == TRUE) {
-      print(paste0("iteration ", i, ", nextClientId = ", content_json$nextClientId))
+      print(paste0("iteration ", i))
       
       i <- i + 1
       
@@ -104,6 +106,8 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                             encode = "json")
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
+      
+      print(paste0("nextClientId = ", content_json$nextClientId))
       
       build_data_frame <- function(c){
         properties <- as.data.frame(content_json$results[c])
