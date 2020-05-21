@@ -86,7 +86,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       
       i <- i + 1
       
-      body <- paste0("{\"user\":", rev_user,
+      body <- paste0("{\"user\":", rev_username,
                      ",\"sessionId\":\"",
                      rev_session_id,
                      "\",\"productId\":",
