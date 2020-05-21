@@ -54,7 +54,6 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
       properties_category <- content_json$results$category[y]
       properties <- as.data.frame(content_json$results$properties[y]) %>%
         cbind(properties_category) %>%
-        # EVENTUALLY CONVERT ALL TO CHAR WITH ACROSS() from dplyr 1.0.0
         mutate(properties_category = as.character(.data$properties_category),
                revulytics_product_id = x,
                property_name = as.character(.data$name),
