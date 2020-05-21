@@ -1,5 +1,5 @@
 Package: revulyticsR
-Title: Connect To Your Revulytics Data With R
+Title: Connect to Your Revulytics Data with R
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Chris",
