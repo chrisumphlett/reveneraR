@@ -65,7 +65,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
   
   get_one_product_metadata <- function(product_iter) {
     
-    print(paste0("Starting product id ", product_iter))
+    message(paste0("Starting product id ", product_iter))
   
     custom_property_names <- product_properties_df %>%
       filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
@@ -107,7 +107,7 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
       
-      print(paste0("nextClientId = ", content_json$nextClientId))
+      message(paste0("nextClientId = ", content_json$nextClientId))
       
       build_data_frame <- function(c){
         properties <- as.data.frame(content_json$results[c])
