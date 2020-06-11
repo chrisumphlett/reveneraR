@@ -41,6 +41,7 @@
 #' @import jsonlite
 #' @importFrom tidyselect "all_of"
 #' @importFrom tidyr "pivot_longer"
+#' @importFrom tibble "tibble"
 #' 
 #' @return Data frame with selected properties for each Client Id.
 #' 
@@ -82,12 +83,12 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
     keep_going <- TRUE
     
     while (keep_going == TRUE) {
-      print(paste0("iteration ", i))
+      message(paste0("iteration ", i))
       
       i <- i + 1
       
-      body <- paste0("{\"user\":", rev_username,
-                     ",\"sessionId\":\"",
+      body <- paste0("{\"user\":\"",rev_username,
+                     "\",\"sessionId\":\"",
                      rev_session_id,
                      "\",\"productId\":",
                      product_iter,
@@ -104,6 +105,9 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       request <- httr::POST("https://api.revulytics.com/reporting/clientPropertyList",
                             body = body,
                             encode = "json")
+      
+      check_status(request)
+      
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
       
