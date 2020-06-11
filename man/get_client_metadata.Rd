@@ -52,9 +52,11 @@ This API call can only return 200 Client Ids at a time. It will take a
 long time to execute if you have many Client Ids, as the function will
 submit requests to the API repeatedly; this may even result in a timeout
 error from the server. In order to provide data for troubleshooting 
-this function will print some notes to the console after each call. 
+this function will write a message to the console after each call. 
 It is recommended that you divert the console output to a text file. 
-You can do this in multiple ways, including with the sink function.
+You can do this in multiple ways, including with the sink function (see
+example for how to do this).
+
 For the same reason you are encouraged to break your request into
 smaller chunks using the install dates and/or splitting up your
 product Ids.
@@ -66,7 +68,10 @@ rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 session_id <- revulytics_auth(rev_user, rev_pwd)  
 product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
+sink("output_filename.txt") 
+sink(stdout(), type = "message")
 client_metadata <- get_client_metadata(product_ids_list, session_id, rev_user,
 product_properties, c("Property1", "Property2"), start_date, end_date)
+sink()
 }
 }
