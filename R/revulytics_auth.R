@@ -35,6 +35,8 @@ revulytics_auth <- function(rev_username, rev_password) {
                                              useCookies = FALSE),
                                  encode = "json")
   
+  check_status(revulytics_login)
+  
   rev_session_id <- httr::content(revulytics_login)$sessionId
   
   return(rev_session_id)

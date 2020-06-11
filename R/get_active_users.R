@@ -68,12 +68,16 @@ get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev
       clientStatus = array("active")
     )
     
-    get_json <- httr::POST("https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
+    request <- httr::POST("https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
                      body = request_body,
                      encode = "json")
-    get_text <- httr::content(get_json, "text", encoding = "ISO-8859-1")
-    get_json <- jsonlite::fromJSON(get_text, flatten = TRUE)
-    iteration_df <- as.data.frame(unlist(get_json$results)) %>% cbind(rownames(.)) %>%
+    
+    check_status(request)
+    
+    request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
+    content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
+    
+    iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
       dplyr::rename(active_user_date = 2, active_users = 1) %>%
       dplyr::mutate(active_user_date = as.Date(substr(.data$active_user_date, 1, 10)),
              revulytics_product_id = x)
