@@ -6,7 +6,8 @@
 #' exits the function.
 
 #' 
-#' @return If status code is not 200, returns a message to console and stops execution 
+#' @return If status code is not 200, returns a message to
+#' console and stops execution 
 #' 
 #' @keywords internal
 
