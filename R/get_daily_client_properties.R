@@ -1,8 +1,8 @@
 #' Get Daily Property Values for All Clients for a List of Product Ids
 #' 
-#' Description
+#' Returns the list of daily client properties for all the client Ids
+#' installed during a user provided date range for all the Product Ids.
 #' 
-#' Details (following paragraphs)
 #' 
 #' It is not recommended that your username be stored directly in your
 #' code. There are various methods and packages available that are more 
@@ -21,8 +21,7 @@
 #' smaller chunks using the install dates and/or splitting up your
 #' product Ids.
 #' 
-#' @param rev_product_ids A vector of revulytics product id's for which
-#' you want active user data.
+#' @param rev_product_ids A vector of revulytics product id.
 #' @param rev_session_id Session ID established by the connection to
 #' Revulytics API. This can be obtained with revulytics_auth().
 #' @param rev_username Revulytics username.
@@ -34,6 +33,10 @@
 #' product installations.
 #' @param installed_end_date Date object for the ending date of 
 #' product installations.
+#' @param daily_start_date Date object for the starting date of desired
+#' properties of the product.
+#' @param daily_stop_date Date object for the ending date of desired 
+#' properties of the product.
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -58,21 +61,21 @@
 #' product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
 #' sink("output_filename.txt") 
 #' sink(stdout(), type = "message")
-#' client_metadata <- get_client_metadata(product_ids_list, session_id, rev_user,
-#' product_properties, c("Property1", "Property2"), start_date, end_date)
+#' daily_client_properties <- get_daily_client_properties(product_ids_list, session_id, rev_user,
+#' product_properties, c("Property1", "Property2"), start_date, end_date,
+#' daily_start_date = "01-01-2020", daily_end_date = "01-31-2020")
 #' sink()
 #' }
 
 
-get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_username, product_properties_df, desired_properties, installed_start_date, installed_end_date) {
+get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_username, product_properties_df, desired_properties, installed_start_date, installed_end_date,
+                                        daily_start_date,daily_end_date) {
   
-  product_df_base <- tibble(revulytics_product_id = character(), client_id = character(),
-                            property_friendly_name = character(), property_value = character())
-  
+  trialpurchase_df <- data.frame()
   get_one_product_metadata <- function(product_iter) {
     
     message(paste0("Starting product id ", product_iter))
-    
+  
     custom_property_names <- product_properties_df %>%
       filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
       select(.data$property_name) %>%
@@ -92,75 +95,92 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
       
       i <- i + 1
       
-      client_body <- list(
-        user = "a",
-        sessionId = "session_id",
-        productId = "product_id",
-        globalFilters = list('clientId' = list('type'='stringArray','value'= "cids")),
-        properties = array(c('geography.country')),
-        retDailyData = list('startDate' = '2020-10-28',"stopDate" = "2020-05-24","properties" = array(c('prodVersion','prodBuild','licenseType')))
-      )
+  
       
-      body <- paste0("{\"user\":\"", rev_username,
-                     "\",\"sessionId\":\"",
-                     rev_session_id,
-                     "\",\"productId\":",
-                     product_iter,
-                     ",\"startAtClientId\":",
-                     jsonlite::toJSON(ifelse(exists("content_json"), content_json$nextClientId, NA_character_), auto_unbox = TRUE),
+      body <- paste0("{\"user\":\"",rev_username,
+                      "\",\"sessionId\":\"",
+                      rev_session_id,
+                      "\",\"productId\":",
+                      product_iter,
+                      ",\"startAtClientId\":",
+                    jsonlite::toJSON(ifelse(exists("content_json"), content_json$nextClientId, NA_character_), auto_unbox = TRUE),
                      paste0(",\"globalFilters\":{\"dateInstalled\":{\"type\":\"dateRange\",\"min\":\"",
                             installed_start_date,
                             "\",\"max\":\"",
                             installed_end_date,
                             "\"}},"),
                      paste0("\"properties\":", jsonlite::toJSON(array(c("geography.country")), auto_unbox = TRUE), ","),
-                     paste0("\"retDailyData\":{\"startDate\":[\"",
-                            daily_property_start_date,
-                            "\"],\"stopDate\":[\"",
-                            daily_property_end_date,
-                            "\"],\"properties\":\"",
+                     paste0("\"retDailyData\":{\"startDate\":\"",
+                            daily_start_date,
+                            "\",\"stopDate\":\"",
+                            daily_end_date,
+                            "\",\"properties\":",
                             jsonlite::toJSON(array(c(custom_property_names)), auto_unbox = TRUE),
-                            "}}",
+                            "}}"),
                      sep = "")
-      )
       
-      
+    
       request <- httr::POST("https://api.revulytics.com/reporting/clientPropertyList",
                             body = body,
                             encode = "json")
+      
       
       check_status(request)
       
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-      
-      message(paste0("nextClientId = ", content_json$nextClientId))
-      
+       
+       message(paste0("nextClientId = ", content_json$nextClientId))
+
       build_data_frame <- function(c){
         properties <- as.data.frame(content_json$results[c])
       }
       
       product_df <- purrr::map_dfc(1:length(content_json$results), build_data_frame)
-      names(product_df)[2:length(content_json$results)] <- c(custom_property_friendly_names)
-      product_df2 <- product_df %>%
-        tidyr::pivot_longer(tidyselect::all_of(custom_property_friendly_names), names_to = "property_friendly_name", values_to = "property_value") %>%
-        mutate(property_value = if_else(.data$property_value == "<NULL>" | .data$property_value == "", NA_character_, .data$property_value),
-               revulytics_product_id = product_iter) %>%
-        rename(client_id = .data$clientId) %>%
-        select(.data$revulytics_product_id, .data$client_id, .data$property_friendly_name, .data$property_value) %>%
-        filter(!is.na(.data$property_value))
       
-      product_df_base <- bind_rows(product_df2, product_df_base)
+      colnames(product_df)[1] <- "client_id"
+      
+      daily_propertytype <- product_df$dailyData
+      
+      daily_propertytype_flat <- bind_rows(daily_propertytype, .id = "column_label") %>%
+        mutate(id = as.numeric(.data$column_label),
+               property_date = as.Date(date)) %>%
+        select(-.data$column_label, -date)
+      
+      names(daily_propertytype_flat)[1:length(custom_property_friendly_names)] <- c(custom_property_friendly_names)
+
+      client_df <- purrr::map_dfc(1:nrow(product_df), ~ (nrow(product_df[[3]][[.x]]))) %>%
+        tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
+        cbind(product_df)%>%
+        filter(.data$b!=0)%>%
+        select(3)%>%
+        mutate(id = row_number())
+
+      client_df_merged <- merge(x = daily_propertytype_flat, y=client_df, by="id", all.x=TRUE)%>%
+        tidyr::pivot_longer(cols=-c("id", "property_date", "client_id"), names_to = "property_name", values_to = "property_value")%>%
+        select(-id)
+
+      
+      final_df <- client_df_merged %>%
+        group_by(.data$client_id, .data$property_value) %>%
+        slice(which.min(as.Date(.data$property_date,"%Y-%m-%d")))%>%
+        ungroup()
+     
+      trialpurchase_df <- bind_rows(final_df, trialpurchase_df)%>%
+        mutate(revulytics_product_id = product_iter)
+        
       
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
       
     }
     
-    return(product_df_base)
+     return(trialpurchase_df)
     
   }
   
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_metadata)
-  return(all_products_df)
-  
+   return(all_products_df)
+   
+   
 }
+
