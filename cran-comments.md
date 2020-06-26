@@ -2,7 +2,8 @@
  
 * Removed extra spaces and added the web reference to the API documentation in the DESCRIPTION file.
 * Used message() instead of print() in the R code files.
-* Added a util function to check the status code returned as part of the API call.  
+* Added a util function to check the status code returned as part of the API call. 
+* Added a new API package to fetch the dialy client properties. 
 * Original submission notes : I believe everything should be in order. There is no vignette because I do not believe it could be created without my specific API credentials included. The examples and README both demonstrate how the package would be used by someone who is a customer for this service and has the proper authentication credentials.
 
 ## Test environments
