@@ -35,7 +35,7 @@
 #' product installations.
 #' @param daily_start_date Date object for the starting date of desired
 #' properties of the product.
-#' @param daily_stop_date Date object for the ending date of desired 
+#' @param daily_end_date Date object for the ending date of desired 
 #' properties of the product.
 #' 
 #' @import dplyr
