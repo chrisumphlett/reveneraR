@@ -92,15 +92,6 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
       
       i <- i + 1
       
-      client_body <- list(
-        user = "a",
-        sessionId = "session_id",
-        productId = "product_id",
-        globalFilters = list('clientId' = list('type'='stringArray','value'= "cids")),
-        properties = array(c('geography.country')),
-        retDailyData = list('startDate' = '2020-10-28',"stopDate" = "2020-05-24","properties" = array(c('prodVersion','prodBuild','licenseType')))
-      )
-      
       body <- paste0("{\"user\":\"", rev_username,
                      "\",\"sessionId\":\"",
                      rev_session_id,
