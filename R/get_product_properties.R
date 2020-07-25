@@ -43,10 +43,18 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
       productId = x
     )
     
+    terminal_codes <- list(c("400","401","403","404"))
+    
+    
     body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
-    request <- httr::POST("https://api.revulytics.com//meta/productProperties",
+    request <- httr::RETRY("POST",
+                           url = "https://api.revulytics.com//meta/productProperties",
                            body = body,
-                           encode = "json")
+                           encode = "json",
+                           times = 4,
+                           pause_min = 10,
+                           terminate_on = terminal_codes,
+                           pause_cap = 5)
     check_status(request)
     
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")

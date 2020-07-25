@@ -107,9 +107,17 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
                      paste0("\"properties\":", jsonlite::toJSON(array(c(custom_property_names)), auto_unbox = TRUE), "}"),
       sep = "")
       
-      request <- httr::POST("https://api.revulytics.com/reporting/clientPropertyList",
+      
+      terminal_codes <- list(c("400","401","403","404"))
+      
+      request <- httr::RETRY("POST",
+                            url = "https://api.revulytics.com/reporting/clientPropertyList",
                             body = body,
-                            encode = "json")
+                            encode = "json",
+                            times = 4,
+                            pause_min = 10,
+                            terminate_on = terminal_codes,
+                            pause_cap = 5)
       
       check_status(request)
       
