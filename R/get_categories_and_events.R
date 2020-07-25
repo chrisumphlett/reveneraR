@@ -46,7 +46,7 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id, rev_usern
     terminal_codes <- list(c("400","401","403","404"))
     
     body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
-    request <- httr::RETRY('POST',
+    request <- httr::RETRY("POST",
                           url = "https://api.revulytics.com/eventTracking/listEventNames",
                           body = body,
                           encode = "json",

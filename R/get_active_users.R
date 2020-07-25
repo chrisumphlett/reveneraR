@@ -70,7 +70,7 @@ get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev
     
     terminal_codes <- list(c("400","401","403","404"))
     
-    request <- httr::RETRY('POST',
+    request <- httr::RETRY("POST",
                            url = "https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
                      body = request_body,
                      encode = "json",
