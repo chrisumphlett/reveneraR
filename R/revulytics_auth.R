@@ -27,13 +27,21 @@
 #' end_date <- Sys.Date() - 1
 #' session_id <- revulytics_auth(rev_user, rev_pwd)
 #' }
-
+ 
 revulytics_auth <- function(rev_username, rev_password) {
-  revulytics_login <- httr::POST("https://api.revulytics.com/auth/login",
+  
+  
+  terminal_codes <- list(c("400","401","403","404"))
+  revulytics_login <- httr::RETRY("POST",
+                                 url = "https://api.revulytics.com/auth/login",
                                  body = list(user = rev_username,
                                              password = rev_password,
                                              useCookies = FALSE),
-                                 encode = "json")
+                                 encode = "json",
+                                 times = 4,
+                                 pause_min = 10,
+                                 terminate_on = terminal_codes,
+                                 pause_cap = 5)
   
   check_status(revulytics_login)
   
