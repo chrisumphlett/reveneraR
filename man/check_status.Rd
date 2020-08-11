@@ -8,7 +8,7 @@ check_status(request_obj)
 }
 \value{
 If status code is not 200, returns a message to
-console and stops execution
+console with appropriate error message and stops execution.
 }
 \description{
 This function is called by other functions that submit a 
