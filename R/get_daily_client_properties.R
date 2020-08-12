@@ -128,7 +128,8 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
                              encode = "json",
                              times = 4,
                              pause_min = 10,
-                             terminate_on = terminal_codes,
+                             terminate_on = NULL,
+                             terminate_on_success = TRUE,
                              pause_cap = 5)
       
       check_status(request)

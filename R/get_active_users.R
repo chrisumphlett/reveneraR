@@ -68,15 +68,15 @@ get_active_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev
       clientStatus = array("active")
     )
     
-    terminal_codes <- list(c("400","401","403","404"))
-    
+
     request <- httr::RETRY("POST",
                            url = "https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
                      body = request_body,
                      encode = "json",
                      times = 4,
                      pause_min = 10,
-                     terminate_on = terminal_codes,
+                     terminate_on = NULL,
+                     terminate_on_success = TRUE,
                      pause_cap = 5)
     
     check_status(request)

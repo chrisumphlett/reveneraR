@@ -43,8 +43,6 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
       productId = x
     )
     
-    terminal_codes <- list(c("400","401","403","404"))
-    
     
     body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
     request <- httr::RETRY("POST",
@@ -53,7 +51,8 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
                            encode = "json",
                            times = 4,
                            pause_min = 10,
-                           terminate_on = terminal_codes,
+                           terminate_on = NULL,
+                           terminate_on_success = TRUE,
                            pause_cap = 5)
     check_status(request)
     

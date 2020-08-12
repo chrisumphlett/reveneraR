@@ -29,9 +29,7 @@
 #' }
  
 revulytics_auth <- function(rev_username, rev_password) {
-  
-  
-  terminal_codes <- list(c("400","401","403","404"))
+
   revulytics_login <- httr::RETRY("POST",
                                  url = "https://api.revulytics.com/auth/login",
                                  body = list(user = rev_username,
@@ -40,7 +38,8 @@ revulytics_auth <- function(rev_username, rev_password) {
                                  encode = "json",
                                  times = 4,
                                  pause_min = 10,
-                                 terminate_on = terminal_codes,
+                                 terminate_on = NULL,
+                                 terminate_on_success = TRUE,
                                  pause_cap = 5)
   
   check_status(revulytics_login)
