@@ -1,6 +1,6 @@
 # revulyticsR 0.0.2
-* Added a RETRY() to safely retry an API request certain number of times before returning a error code.
-* Added get_daily_client_properties() to pull daily values of properties for a product within a given date range.
+* Added a `RETRY()` to safely retry an API request certain number of times before returning a error code.
+* Added `get_daily_client_properties()` to pull daily values of properties for a product within a given date range.
 
 # revulyticsR 0.0.1
 
