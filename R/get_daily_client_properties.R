@@ -154,8 +154,10 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
                property_date = as.Date(date)) %>%
         select(-.data$column_label, -date)
       
-      names(daily_propertytype_flat)[1:length(custom_property_friendly_names)] <- c(custom_property_friendly_names)
-
+      suppressMessages(
+        names(daily_propertytype_flat)[1:length(custom_property_friendly_names)] <- c(custom_property_friendly_names)
+      )
+      
       client_df <- purrr::map_dfc(1:nrow(product_df), ~ (nrow(product_df[[3]][[.x]]))) %>%
         tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
         cbind(product_df)%>%
