@@ -1,7 +1,10 @@
-# revulyticsR 0.0.3
+# revulyticsR 0.0.2.9000
+
+* Added `get_new_users`.
 * Removed unnecessary messages being printed to console by `get_daily_client_properties`.
 
 # revulyticsR 0.0.2
+
 * Added a `RETRY()` to safely retry an API request certain number of times before returning a error code.
 * Added `get_daily_client_properties()` to pull daily values of properties for a product within a given date range.
 
