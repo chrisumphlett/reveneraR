@@ -18,6 +18,7 @@ The current version has several functions for making requests to the API.
 * `get_product_properties()`. For a list of product ids get all of the product properties, both standard and custom. This can then be passed into `get_client_metadata()`.
 * `get_client_metadata()`. For a list of product ids get selected properties for each client, which is essentially metadata.  This works by pulling all of the clients that are installed within specified date range.
 * `get_daily_client_properties()` to pull daily values of properties for a product within a given date range.
+* `get_raw_data_files()` to retrieve the list of raw data file exports if that add-on is enabled and the download URLs.
 
 You will need your own credentials to use the package. A workflow could be:
 

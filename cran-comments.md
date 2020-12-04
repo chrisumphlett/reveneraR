@@ -1,13 +1,13 @@
-## CorrectedRelease summary
+## Release summary
  
-* Fixed documentation URL which changed with company re-branding. Original release comments follow.
-* This is a minor update to the package with new functions and back-end improvement.
-* Added `get_daily_client_properties()` to pull daily values of properties for a product within a given date range.
 * Improved handling of API request errors.
+* `get_new_users()` created. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of new users. With this function you can return daily, weekly, or monthly new users for multiple product ids.
+* Removed unnecessary messages being printed to console by `get_daily_client_properties`.
+* `get_raw_data_files` created to retrieve the list of available raw data files and download URL for each file.
 
 ## Test environments
  
-* Developed on and tested with Windows 10chec and R 4.0.
+* Developed on and tested with Windows 10 and R 4.0.
 * Tested on development version of R with devtools::check_win_devel().
 * Testing Fedora and Ubuntu platforms with devtools::check_rhub().
  
