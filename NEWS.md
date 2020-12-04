@@ -1,7 +1,8 @@
-# revulyticsR 0.0.2.9000
+# revulyticsR 0.0.3
 
-* Added `get_new_users`.
+* `get_new_users()` created. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of new users. With this function you can return daily, weekly, or monthly new users for multiple product ids.
 * Removed unnecessary messages being printed to console by `get_daily_client_properties`.
+* `get_raw_data_files` to retrieve the list of available raw data files and download URL for each file.
 
 # revulyticsR 0.0.2
 
