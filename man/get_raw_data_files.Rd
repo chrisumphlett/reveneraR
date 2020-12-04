@@ -39,6 +39,11 @@ rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 session_id <- revulytics_auth(rev_user, rev_pwd)  
-
+files_df <- get_raw_data_files(product_ids_list, session_id, rev_user)
+file_list <- dplyr::pull(files_df, var = file_name)
+for (f in file_list){
+  url <- dplyr::filter(files_df, file_name == f) \%>\% dplyr::pull(download_url)
+  download.file(url, mode = "wb", destfile = "download_file_location.zip")
+}
 }
 }
