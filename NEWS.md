@@ -1,3 +1,5 @@
+# revulyticsR 0.0.3.9000
+
 # revulyticsR 0.0.3
 
 * `get_new_users()` created. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of new users. With this function you can return daily, weekly, or monthly new users for multiple product ids.

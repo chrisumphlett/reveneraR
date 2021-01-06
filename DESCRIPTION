@@ -1,6 +1,6 @@
 Package: revulyticsR
 Title: Connect to Your 'Revulytics' Data
-Version: 0.0.3
+Version: 0.0.3.9000
 Authors@R: 
     c(person(given = "Chris",
            family = "Umphlett",
