@@ -1,5 +1,5 @@
 Package: revulyticsR
-Title: Connect to Your 'Revulytics' Data
+Title: Connect to Your 'Revenera' (formerly 'Revulytics') Data
 Version: 0.0.3.9000
 Authors@R: 
     c(person(given = "Chris",
@@ -11,8 +11,8 @@ Authors@R:
            role = "aut",
            email = "avinashpanigrahi@outlook.com"))		   
 Description: Facilitates making a connection to the 
-  'Revulytics' API and executing various queries. You can use it to
-  get event data and metadata. The Revulytics documentation 
+  'Revenera' API and executing various queries. You can use it to
+  get event data and metadata. The 'Revenera' documentation 
   is available at <https://docs.revenera.com/ui560/report/>. This
   package is not supported by 'Flexera' (owner of the software). 
 Suggests: knitr, rmarkdown, ggplot2

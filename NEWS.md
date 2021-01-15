@@ -1,5 +1,8 @@
 # revulyticsR 0.0.3.9000
 
+* `get_users()` created to replace `get_new_users()` and `get_active_users()`. These use the same API endpoint with one parameter changed. `get_users()` also returns lost users.
+* `get_new_users()` and `get_active_users()` are deprecated but will not be removed so that this is not a breaking change.
+
 # revulyticsR 0.0.3
 
 * `get_new_users()` created. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of new users. With this function you can return daily, weekly, or monthly new users for multiple product ids.
