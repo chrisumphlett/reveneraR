@@ -23,6 +23,11 @@
 #' @param rev_session_id Session ID established by the connection to
 #' Revenera API. This can be obtained with revulytics_auth().
 #' @param rev_username Revenera username.
+#' @param lost_days Required for lost users, the number of consecutive
+#' days of inactivity before a client is considered lost.
+#' @param lost_reported Required for lost users, should the lost date
+#' be the first day of inactivity ("dateLastSeen") or date 
+#' client is considered lost ("dateDeclaredLost").
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -53,7 +58,9 @@
 #' }
 
 
-get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date, rev_end_date, rev_session_id, rev_username) {
+get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date, 
+                      rev_end_date, rev_session_id, rev_username, lost_days = 30,
+                      lost_reported = "dateLastSeen") {
   
   . <- NA # prevent variable binding note for the dot in the get_by_product function
   
@@ -65,7 +72,9 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
       startDate = rev_start_date,
       stopDate = rev_end_date,
       dateSplit = rev_date_type,
-      clientStatus = array(user_type)
+      clientStatus = array(user_type),
+      daysUntilDeclaredLost = lost_days,
+      dateReportedLost = lost_reported
     )
     
     

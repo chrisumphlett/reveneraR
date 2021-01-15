@@ -11,7 +11,9 @@ get_users(
   rev_start_date,
   rev_end_date,
   rev_session_id,
-  rev_username
+  rev_username,
+  lost_days = 30,
+  lost_reported = "dateLastSeen"
 )
 }
 \arguments{
@@ -32,6 +34,13 @@ an error if you try to go back too far.}
 Revenera API. This can be obtained with revulytics_auth().}
 
 \item{rev_username}{Revenera username.}
+
+\item{lost_days}{Required for lost users, the number of consecutive
+days of inactivity before a client is considered lost.}
+
+\item{lost_reported}{Required for lost users, should the lost date
+be the first day of inactivity ("dateLastSeen") or date 
+client is considered lost ("dateDeclaredLost").}
 }
 \value{
 Data frame with active users for each product id and
