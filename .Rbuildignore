@@ -7,4 +7,4 @@ testing_from_GH.R
 cran-comments.md
 ^CRAN-RELEASE$
 ^\.github$
-^\R\event_tracking.R
+event_tracking.R
