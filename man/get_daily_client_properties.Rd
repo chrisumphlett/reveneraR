@@ -17,12 +17,12 @@ get_daily_client_properties(
 )
 }
 \arguments{
-\item{rev_product_ids}{A vector of revulytics product id.}
+\item{rev_product_ids}{A vector of Revenera product id.}
 
 \item{rev_session_id}{Session ID established by the connection to
-Revulytics API. This can be obtained with revulytics_auth().}
+Revenera API. This can be obtained with revenera_auth().}
 
-\item{rev_username}{Revulytics username.}
+\item{rev_username}{Revenera username.}
 
 \item{product_properties_df}{Data frame with available properties 
 for all product ids. Can obtain with the get_product_properties function.}
@@ -72,7 +72,7 @@ product Ids.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-session_id <- revulytics_auth(rev_user, rev_pwd)  
+session_id <- revenera_auth(rev_user, rev_pwd)  
 product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
 sink("output_filename.txt") 
 sink(stdout(), type = "message")

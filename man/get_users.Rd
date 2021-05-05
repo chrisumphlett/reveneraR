@@ -31,7 +31,7 @@ an error if you try to go back too far.}
 \item{rev_end_date}{Date formatted YYYY-MM-DD.}
 
 \item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revulytics_auth().}
+Revenera API. This can be obtained with revenera_auth().}
 
 \item{rev_username}{Revenera username.}
 
@@ -67,7 +67,7 @@ rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revulytics_auth(rev_user, rev_pwd)  
+session_id <- revenera_auth(rev_user, rev_pwd)  
 monthly_active_users <- get_users(product_ids_list,
 "active",
 "month",

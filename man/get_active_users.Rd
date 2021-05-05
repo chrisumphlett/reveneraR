@@ -14,34 +14,34 @@ get_active_users(
 )
 }
 \arguments{
-\item{rev_product_ids}{A vector of revulytics product id's for which
+\item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
 
-\item{rev_date_type}{Level of aggregation, Revulytics will accept
+\item{rev_date_type}{Level of aggregation, Revenera will accept
 "day", "week", or "month".}
 
-\item{rev_start_date}{Date formatted YYYY-MM-DD. Revulytics may give
+\item{rev_start_date}{Date formatted YYYY-MM-DD. Revenera may give
 an error if you try to go back too far.}
 
 \item{rev_end_date}{Date formatted YYYY-MM-DD.}
 
 \item{rev_session_id}{Session ID established by the connection to
-Revulytics API. This can be obtained with revulytics_auth().}
+Revenera API. This can be obtained with revenera_auth().}
 
-\item{rev_username}{Revulytics username.}
+\item{rev_username}{Revenera username.}
 }
 \value{
 Data frame with active users for each product id and
 unique date within the range
 }
 \description{
-For a given period of time (a day, week, or month) Revulytics' API
+For a given period of time (a day, week, or month) Revenera' API
 summarizes and returns the number of active users. With this function
 you can return daily, weekly, or monthly active users for multiple 
 product ids.
 }
 \details{
-You can specify a start and end date but Revulytics does not store
+You can specify a start and end date but Revenera does not store
 an indefinite period of historical data. In my experience this is 
 three years but I do not know if this varies on a product or client
 level.
@@ -57,7 +57,7 @@ rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revulytics_auth(rev_user, rev_pwd)  
+session_id <- revenera_auth(rev_user, rev_pwd)  
 monthly_active_users <- get_active_users(product_ids_list,
 "month",
 start_date,
