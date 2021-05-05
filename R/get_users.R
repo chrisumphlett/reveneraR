@@ -21,7 +21,7 @@
 #' an error if you try to go back too far.
 #' @param rev_end_date Date formatted YYYY-MM-DD.
 #' @param rev_session_id Session ID established by the connection to
-#' Revenera API. This can be obtained with revulytics_auth().
+#' Revenera API. This can be obtained with revenera_auth().
 #' @param rev_username Revenera username.
 #' @param lost_days Required for lost users, the number of consecutive
 #' days of inactivity before a client is considered lost.
@@ -47,7 +47,7 @@
 #' product_ids_list <- c("123", "456", "789")
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' monthly_active_users <- get_users(product_ids_list,
 #' "active",
 #' "month",
@@ -96,7 +96,7 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
       dplyr::rename(user_date = 2, users = 1) %>%
       dplyr::mutate(user_date = as.Date(substr(.data$user_date, 1, 10)),
-                    revulytics_product_id = x)
+                    revenera_product_id = x)
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }

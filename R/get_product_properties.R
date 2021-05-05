@@ -7,11 +7,11 @@
 #' code. There are various methods and packages available that are more 
 #' secure; this package does not require you to use any one in particular.
 #' 
-#' @param rev_product_ids A vector of revulytics product id's for which
+#' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
 #' @param rev_session_id Session ID established by the connection to
-#' Revulytics API. This can be obtained with revulytics_auth().
-#' @param rev_username Revulytics username.
+#' Revenera API. This can be obtained with revenera_auth().
+#' @param rev_username Revenera username.
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -30,7 +30,7 @@
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
 #' }
 
@@ -64,7 +64,7 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
       properties <- as.data.frame(content_json$results$properties[y]) %>%
         cbind(properties_category) %>%
         mutate(properties_category = as.character(.data$properties_category),
-               revulytics_product_id = x,
+               revenera_product_id = x,
                property_name = as.character(.data$name),
                property_friendly_name = as.character(.data$friendlyName),
                filter_type = as.character(.data$filterType),
@@ -72,7 +72,7 @@ get_product_properties <- function(rev_product_ids, rev_session_id, rev_username
                supports_regex_f = as.character(if_else(.data$supportsRegex, 1, 0)),
                supports_meta_f = as.character(if_else(.data$supportsMeta, 1, 0)),
                supports_null_f = as.character(if_else(.data$supportsNull, 1, 0))) %>%
-        select(.data$revulytics_product_id, .data$properties_category, .data$property_name, .data$property_friendly_name, .data$filter_type, 
+        select(.data$revenera_product_id, .data$properties_category, .data$property_name, .data$property_friendly_name, .data$filter_type, 
                .data$data_type, .data$supports_regex_f, .data$supports_meta_f, .data$supports_null_f)
 
     }

@@ -1,11 +1,11 @@
 #' Get New Users by Product ID and Various Date Spans
 #' 
-#' For a given period of time (a day, week, or month) Revulytics' API
+#' For a given period of time (a day, week, or month) Revenera' API
 #' summarizes and returns the number of new users. With this function
 #' you can return daily, weekly, or monthly new users for multiple 
 #' product ids. 
 #' 
-#' You can specify a start and end date but Revulytics does not store
+#' You can specify a start and end date but Revenera does not store
 #' an indefinite period of historical data. In my experience this is 
 #' three years but I do not know if this varies on a product or client
 #' level.
@@ -14,16 +14,16 @@
 #' code. There are various methods and packages available that are more 
 #' secure; this package does not require you to use any one in particular.
 #' 
-#' @param rev_product_ids A vector of revulytics product id's for which
+#' @param rev_product_ids A vector of Revenera product id's for which
 #' you want new user data.
-#' @param rev_date_type Level of aggregation, Revulytics will accept
+#' @param rev_date_type Level of aggregation, Revenera will accept
 #' "day", "week", or "month".
-#' @param rev_start_date Date formatted YYYY-MM-DD. Revulytics may give
+#' @param rev_start_date Date formatted YYYY-MM-DD. Revenera may give
 #' an error if you try to go back too far.
 #' @param rev_end_date Date formatted YYYY-MM-DD.
 #' @param rev_session_id Session ID established by the connection to
-#' Revulytics API. This can be obtained with revulytics_auth().
-#' @param rev_username Revulytics username.
+#' Revenera API. This can be obtained with revenera_auth().
+#' @param rev_username Revenera username.
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -43,7 +43,7 @@
 #' product_ids_list <- c("123", "456", "789")
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' monthly_new_users <- get_new_users(product_ids_list,
 #' "month",
 #' start_date,
@@ -87,7 +87,7 @@ get_new_users <- function(rev_product_ids, rev_date_type, rev_start_date, rev_en
     iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
       dplyr::rename(new_user_date = 2, new_users = 1) %>%
       dplyr::mutate(new_user_date = as.Date(substr(.data$new_user_date, 1, 10)),
-                    revulytics_product_id = x)
+                    revenera_product_id = x)
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }

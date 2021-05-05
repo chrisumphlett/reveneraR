@@ -3,7 +3,6 @@
 #' Returns the list of daily client properties for all the client Ids
 #' installed during a user provided date range for all the Product Ids.
 #' 
-#' 
 #' It is not recommended that your username be stored directly in your
 #' code. There are various methods and packages available that are more 
 #' secure; this package does not require you to use any one in particular.
@@ -21,10 +20,10 @@
 #' smaller chunks using the install dates and/or splitting up your
 #' product Ids.
 #' 
-#' @param rev_product_ids A vector of revulytics product id.
+#' @param rev_product_ids A vector of Revenera product id.
 #' @param rev_session_id Session ID established by the connection to
-#' Revulytics API. This can be obtained with revulytics_auth().
-#' @param rev_username Revulytics username.
+#' Revenera API. This can be obtained with revenera_auth().
+#' @param rev_username Revenera username.
 #' @param product_properties_df Data frame with available properties 
 #' for all product ids. Can obtain with the get_product_properties function.
 #' @param desired_properties The property names of the metadata you want
@@ -57,7 +56,7 @@
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
 #' sink("output_filename.txt") 
 #' sink(stdout(), type = "message")
@@ -77,12 +76,12 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
     message(paste0("Starting product id ", product_iter))
   
     custom_property_names <- product_properties_df %>%
-      filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
+      filter(.data$revenera_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
       select(.data$property_name) %>%
       pull()
     
     custom_property_friendly_names <- product_properties_df %>%
-      filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
+      filter(.data$revenera_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
       select(.data$property_friendly_name) %>%
       pull()
     
@@ -176,7 +175,7 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id, rev_use
         ungroup()
      
       trialpurchase_df <- bind_rows(final_df, trialpurchase_df)%>%
-        mutate(revulytics_product_id = product_iter)
+        mutate(revenera_product_id = product_iter)
         
       
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)

@@ -7,11 +7,11 @@
 #' code. There are various methods and packages available that are more 
 #' secure; this package does not require you to use any one in particular.
 #' 
-#' @param rev_product_ids A vector of revulytics product id's for which
+#' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
 #' @param rev_session_id Session ID established by the connection to
-#' Revulytics API. This can be obtained with revulytics_auth().
-#' @param rev_username Revulytics username.
+#' Revenera API. This can be obtained with revenera_auth().
+#' @param rev_username Revenera username.
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -28,7 +28,7 @@
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' category_event <- get_categories_and_events(product_ids_list, session_id, rev_user)
 #' }
 
@@ -73,8 +73,8 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id, rev_usern
                             .data$basic ~ "BASIC",
                             TRUE ~ "INACTIVE"),
              date_first_seen = as.Date(.data$dateFirstSeen),
-             revulytics_product_id = x) %>%
-      select(.data$revulytics_product_id, .data$category_name, .data$eventName, .data$event_type, .data$date_first_seen) %>%
+             revenera_product_id = x) %>%
+      select(.data$revenera_product_id, .data$category_name, .data$eventName, .data$event_type, .data$date_first_seen) %>%
       rename(event_name = .data$eventName)
     
   }

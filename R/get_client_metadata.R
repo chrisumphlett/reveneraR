@@ -1,6 +1,6 @@
 #' Get Metadata on Client Ids for a List of Product Ids
 #' 
-#' Returns metadata (what Revulytics calls "properties") for every 
+#' Returns metadata (what Revenera calls "properties") for every 
 #' Client Id installed during user-provided date range for all product
 #' Ids in a list.
 #' 
@@ -21,11 +21,11 @@
 #' smaller chunks using the install dates and/or splitting up your
 #' product Ids.
 #' 
-#' @param rev_product_ids A vector of revulytics product id's for which
+#' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
 #' @param rev_session_id Session ID established by the connection to
-#' Revulytics API. This can be obtained with revulytics_auth().
-#' @param rev_username Revulytics username.
+#' Revenera API. This can be obtained with revenera_auth().
+#' @param rev_username Revenera username.
 #' @param product_properties_df Data frame with available properties 
 #' for all product ids. Can obtain with the get_product_properties function.
 #' @param desired_properties The property names of the metadata you want
@@ -54,7 +54,7 @@
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revulytics_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)  
 #' product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
 #' sink("output_filename.txt") 
 #' sink(stdout(), type = "message")
@@ -66,7 +66,7 @@
 
 get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, product_properties_df, desired_properties, installed_start_date, installed_end_date) {
   
-  product_df_base <- tibble(revulytics_product_id = character(), client_id = character(),
+  product_df_base <- tibble(revenera_product_id = character(), client_id = character(),
                             property_friendly_name = character(), property_value = character())
   
   get_one_product_metadata <- function(product_iter) {
@@ -74,12 +74,12 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
     message(paste0("Starting product id ", product_iter))
   
     custom_property_names <- product_properties_df %>%
-      filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
+      filter(.data$revenera_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
       select(.data$property_name) %>%
       pull()
     
     custom_property_friendly_names <- product_properties_df %>%
-      filter(.data$revulytics_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
+      filter(.data$revenera_product_id == product_iter, .data$property_friendly_name %in% desired_properties) %>%
       select(.data$property_friendly_name) %>%
       pull()
     
@@ -135,9 +135,9 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username, p
       product_df2 <- product_df %>%
         tidyr::pivot_longer(tidyselect::all_of(custom_property_friendly_names), names_to = "property_friendly_name", values_to = "property_value") %>%
         mutate(property_value = if_else(.data$property_value == "<NULL>" | .data$property_value == "", NA_character_, .data$property_value),
-               revulytics_product_id = product_iter) %>%
+               revenera_product_id = product_iter) %>%
         rename(client_id = .data$clientId) %>%
-        select(.data$revulytics_product_id, .data$client_id, .data$property_friendly_name, .data$property_value) %>%
+        select(.data$revenera_product_id, .data$client_id, .data$property_friendly_name, .data$property_value) %>%
         filter(!is.na(.data$property_value))
 
       product_df_base <- bind_rows(product_df2, product_df_base)

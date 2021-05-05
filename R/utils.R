@@ -1,7 +1,7 @@
 #' Check Request Status
 #' 
 #' This function is called by other functions that submit a 
-#' requests to revulytics API. It checks the status code
+#' requests to Revenera API. It checks the status code
 #' returned and tells the user if there was an error code and
 #' exits the function.
 
