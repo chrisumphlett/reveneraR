@@ -1,15 +1,15 @@
-# revulyticsR
+# reveneraR
 Connect to Your Revenera (Revulytics) Data with R!
 
-## Revulytics is now known as Revenera
+## The package has been re-named!
 
-While I was developing the package Revulytics was acquired by Flexera, but retained its name. When I was virtually done with the package Flexera rebranded it as Flexera Usage Intelligence and then Revenera.
+While I was developing the package Revulytics was acquired by Flexera, but retained its name. When I was virtually done with the package Flexera rebranded it as Flexera Usage Intelligence and then Revenera. This package/repo was formerly called revulyticsR (through version 0.0.3). Starting with dev version 0.0.3.9000 and the release of 0.1.0 to Cran and GitHub it will be known as reveneraR.
 
 ## Purpose
-revulyticsR facilitates making a connection to the Revulytics API and executing various queries. You can use it to get active users (daily, monthly, etc) or to query on various advanced events and get the results in tidy data frames.
+reveneraR facilitates making a connection to the Revulytics API and executing various queries. You can use it to get active users (daily, monthly, etc) or to query on various advanced events and get the results in tidy data frames.
 
 ## Installation
-The development version can be installed from GitHub: `devtools::install_github("chrisumphlett/revulyticsR")`.
+The development version can be installed from GitHub: `devtools::install_github("chrisumphlett/reveneraR")`.
 
 ## Usage
 A session must first be established before querying the API. This is done using your Revenera username and password with `revultyics_auth()`.

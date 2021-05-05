@@ -1,4 +1,4 @@
-Package: revulyticsR
+Package: reveneraR
 Title: Connect to Your 'Revenera' (formerly 'Revulytics') Data
 Version: 0.0.3.9000
 Authors@R: 
@@ -13,13 +13,14 @@ Authors@R:
 Description: Facilitates making a connection to the 
   'Revenera' API and executing various queries. You can use it to
   get event data and metadata. The 'Revenera' documentation 
-  is available at <https://docs.revenera.com/ui560/report/>. This
-  package is not supported by 'Flexera' (owner of the software). 
+  is available at 
+  <https://docs.revenera.com/ui560/report/Content/helplibrary/APIRoot.htm>. 
+  This package is not supported by 'Flexera' (owner of the software). 
 Suggests: knitr, rmarkdown, ggplot2
 Depends: R (>= 3.6.0)
 License: CC0
-URL: https://github.com/chrisumphlett/revulyticsR
-BugReports: https://github.com/chrisumphlett/revulyticsR/issues
+URL: https://github.com/chrisumphlett/reveneraR
+BugReports: https://github.com/chrisumphlett/reveneraR/issues
 Encoding: UTF-8
 Imports:
   dplyr (>= 0.8.4),
