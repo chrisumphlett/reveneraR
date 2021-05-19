@@ -65,18 +65,41 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
   . <- NA # prevent variable binding note for the dot in the get_by_product function
   
   get_by_product <- function(x, rev_date_type) {
-    request_body <- list(
-      user = rev_username,
-      sessionId = rev_session_id,
-      productId = x,
-      startDate = rev_start_date,
-      stopDate = rev_end_date,
-      dateSplit = rev_date_type,
-      clientStatus = array(user_type),
-      daysUntilDeclaredLost = lost_days,
-      dateReportedLost = lost_reported
-    )
+    # request_body <- list(
+    #   user = rev_username,
+    #   sessionId = rev_session_id,
+    #   productId = x,
+    #   startDate = rev_start_date,
+    #   stopDate = rev_end_date,
+    #   dateSplit = rev_date_type,
+    #   clientStatus = array(user_type),
+    #   daysUntilDeclaredLost = lost_days,
+    #   dateReportedLost = lost_reported
+    # )
     
+    
+    
+    request_body <- paste0("{\"user\":\"",rev_username,
+                   "\",\"sessionId\":\"",
+                   rev_session_id,
+                   "\",\"productId\":",
+                   x,
+                   ",\"startDate\":\"",
+                   rev_start_date,
+                   "\",\"stopDate\":\"",
+                   rev_end_date,
+                   "\",\"daysUntilDeclaredLost\":",
+                   lost_days,
+                   ",\"dateReportedLost\":\"",
+                   lost_reported,
+                   "\",\"startAtClientId\":",
+                   jsonlite::toJSON(ifelse(exists("content_json"), content_json$nextClientId, NA_character_), auto_unbox = TRUE),
+                   paste0(",\"globalFilters\":{\"licenseType\":{\"type\":\"string\",\"value\":\"",
+                          "purchased",
+                          "\"}},"),
+                   paste0("\"clientStatus\":", jsonlite::toJSON(array(c(user_type)), auto_unbox = TRUE), "}"),
+                   sep = "")
+    message(cat(request_body))
     
     request <- httr::RETRY("POST",
                            url = "https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
@@ -88,9 +111,10 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
                            terminate_on_success = TRUE,
                            pause_cap = 5)
     
-    check_status(request)
+    #check_status(request)
     
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
+    message(request_content)
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
     
     iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
