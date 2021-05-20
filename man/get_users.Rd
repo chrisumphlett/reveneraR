@@ -75,13 +75,16 @@ rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revenera_auth(rev_user, rev_pwd)  
+session_id <- revenera_auth(rev_user, rev_pwd)
+global_filter <- paste0(",\"globalFilters\":{\"licenseType\":",
+"{\"type\":\"string\",\"value\":\"purchased\"}}")
 monthly_active_users <- get_users(product_ids_list,
 "active",
 "month",
 start_date,
 end_date,
 session_id,
-rev_user)
+rev_user,
+optional_json = global_filter)
 }
 }

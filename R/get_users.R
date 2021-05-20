@@ -53,14 +53,17 @@
 #' product_ids_list <- c("123", "456", "789")
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
-#' session_id <- revenera_auth(rev_user, rev_pwd)  
+#' session_id <- revenera_auth(rev_user, rev_pwd)
+#' global_filter <- paste0(",\"globalFilters\":{\"licenseType\":",
+#' "{\"type\":\"string\",\"value\":\"purchased\"}}")
 #' monthly_active_users <- get_users(product_ids_list,
 #' "active",
 #' "month",
 #' start_date,
 #' end_date,
 #' session_id,
-#' rev_user)
+#' rev_user,
+#' optional_json = global_filter)
 #' }
 
 
@@ -95,7 +98,6 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
                    optional_json,
                    "}",
                    sep = "")
-    message(cat(request_body))
     
     request <- httr::RETRY("POST",
                            url = "https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
@@ -112,7 +114,7 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
 
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-    message("a")
+
     iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
       dplyr::rename(user_date = 2, users = 1) %>%
       dplyr::mutate(user_date = as.Date(substr(.data$user_date, 1, 10)),
