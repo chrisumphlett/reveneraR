@@ -13,7 +13,8 @@ get_users(
   rev_session_id,
   rev_username,
   lost_days = 30,
-  lost_reported = "dateLastSeen"
+  lost_reported = "dateLastSeen",
+  optional_json = ""
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ days of inactivity before a client is considered lost.}
 \item{lost_reported}{Required for lost users, should the lost date
 be the first day of inactivity ("dateLastSeen") or date 
 client is considered lost ("dateDeclaredLost").}
+
+\item{optional_json}{Optional JSON text to add to the request body 
+for things like global filters.}
 }
 \value{
 Data frame with active users for each product id and
@@ -59,6 +63,10 @@ an indefinite period of historical data.
 It is not recommended that your username be stored directly in your
 code. There are various methods and packages available that are more 
 secure; this package does not require you to use any one in particular.
+
+The optional_json parameter is available so that other optional arguments
+can be added to the api request. This will require the user to consult
+the API documentation. See README for an example.
 }
 \examples{
 \dontrun{
