@@ -1,16 +1,16 @@
-# reveneraR 0.0.3.9000
+# reveneraR 0.1.0
 
 * Package name changed to reflect change in ownership of the software.
 * `get_users()` created to replace `get_new_users()` and `get_active_users()`. These use the same API endpoint with one parameter changed. `get_users()` also returns lost users.
 * `get_new_users()` and `get_active_users()` are deprecated but will not be removed so that this is not a breaking change.
-* Started development of `event_tracking()` to connect to the lifetime, basic, and advanced event tracking endpoints.
+* `optional_json` parameter added to `get_users()` to allow users to incorporate optional parameters per the API documentation.
 
 
 # revulyticsR 0.0.3
 
 * `get_new_users()` created. For a given period of time (a day, week, or month) Revulytics' API summarizes and returns the number of new users. With this function you can return daily, weekly, or monthly new users for multiple product ids.
 * Removed unnecessary messages being printed to console by `get_daily_client_properties`.
-* `get_raw_data_files` to retrieve the list of available raw data files and download URL for each file.
+* `get_raw_data_files()` to retrieve the list of available raw data files and download URL for each file.
 
 # revulyticsR 0.0.2
 
