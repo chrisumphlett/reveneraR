@@ -12,6 +12,10 @@
 #' code. There are various methods and packages available that are more 
 #' secure; this package does not require you to use any one in particular.
 #' 
+#' The optional_json parameter is available so that other optional arguments
+#' can be added to the api request. This will require the user to consult
+#' the API documentation. See README for an example.
+#' 
 #' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
 #' @param user_type One of "active," "new", or "lost."
@@ -28,6 +32,8 @@
 #' @param lost_reported Required for lost users, should the lost date
 #' be the first day of inactivity ("dateLastSeen") or date 
 #' client is considered lost ("dateDeclaredLost").
+#' @param optional_json Optional JSON text to add to the request body 
+#' for things like global filters. 
 #' 
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -60,23 +66,36 @@
 
 get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date, 
                       rev_end_date, rev_session_id, rev_username, lost_days = 30,
-                      lost_reported = "dateLastSeen") {
+                      lost_reported = "dateLastSeen", optional_json = "") {
   
   . <- NA # prevent variable binding note for the dot in the get_by_product function
   
   get_by_product <- function(x, rev_date_type) {
-    request_body <- list(
-      user = rev_username,
-      sessionId = rev_session_id,
-      productId = x,
-      startDate = rev_start_date,
-      stopDate = rev_end_date,
-      dateSplit = rev_date_type,
-      clientStatus = array(user_type),
-      daysUntilDeclaredLost = lost_days,
-      dateReportedLost = lost_reported
-    )
-    
+    request_body <- paste0("{\"user\":\"",rev_username,
+                   "\",\"sessionId\":\"",
+                   rev_session_id,
+                   "\",\"productId\":",
+                   x,
+                   ",\"startDate\":\"",
+                   rev_start_date,
+                   "\",\"stopDate\":\"",
+                   rev_end_date,
+                   "\",\"daysUntilDeclaredLost\":",
+                   lost_days,
+                   ",\"dateReportedLost\":\"",
+                   lost_reported,
+                   "\",\"dateSplit\":\"",
+                   rev_date_type,
+                   "\",\"startAtClientId\":",
+                   jsonlite::toJSON(ifelse(
+                     exists("content_json"), content_json$nextClientId, NA_character_), 
+                     auto_unbox = TRUE),
+                   paste0(",\"clientStatus\":",
+                          jsonlite::toJSON(array(c(user_type)), auto_unbox = TRUE)),
+                   optional_json,
+                   "}",
+                   sep = "")
+    message(cat(request_body))
     
     request <- httr::RETRY("POST",
                            url = "https://api.revulytics.com/reporting/generic/dateRange?responseFormat=raw",
@@ -91,8 +110,9 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     check_status(request)
     
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
+
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-    
+    message("a")
     iteration_df <- as.data.frame(unlist(content_json$results)) %>% cbind(rownames(.)) %>%
       dplyr::rename(user_date = 2, users = 1) %>%
       dplyr::mutate(user_date = as.Date(substr(.data$user_date, 1, 10)),
