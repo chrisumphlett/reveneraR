@@ -31,13 +31,14 @@
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revenera_auth(rev_user, rev_pwd)
-#' product_properties <- get_product_properties(product_ids_list,
-#' session_id, rev_user)
+#' product_properties <- get_product_properties(
+#'   product_ids_list,
+#'   session_id, rev_user
+#' )
 #' }
-
+#'
 get_product_properties <- function(rev_product_ids, rev_session_id,
                                    rev_username) {
-
   get_one_product_properties <- function(x) {
     request_body <- list(
       user = rev_username,
@@ -47,15 +48,18 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
 
     body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
     request <- httr::RETRY("POST",
-                           url = paste0("https://api.revulytics.com/",
-                                        "meta/productProperties"),
-                           body = body,
-                           encode = "json",
-                           times = 4,
-                           pause_min = 10,
-                           terminate_on = NULL,
-                           terminate_on_success = TRUE,
-                           pause_cap = 5)
+      url = paste0(
+        "https://api.revulytics.com/",
+        "meta/productProperties"
+      ),
+      body = body,
+      encode = "json",
+      times = 4,
+      pause_min = 10,
+      terminate_on = NULL,
+      terminate_on_success = TRUE,
+      pause_cap = 5
+    )
     reveneraR::check_status(request)
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
@@ -65,31 +69,37 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
       properties_category <- content_json$results$category[y]
       properties <- as.data.frame(content_json$results$properties[y]) %>%
         cbind(properties_category) %>%
-        mutate(properties_category = as.character(.data$properties_category),
-               revenera_product_id = x,
-               property_name = as.character(.data$name),
-               property_friendly_name = as.character(.data$friendlyName),
-               filter_type = as.character(.data$filterType),
-               data_type = as.character(.data$dataType),
-               supports_regex_f = as.character(if_else(.data$supportsRegex,
-                                                       1, 0)),
-               supports_meta_f = as.character(if_else(.data$supportsMeta,
-                                                      1, 0)),
-               supports_null_f = as.character(if_else(.data$supportsNull,
-                                                      1, 0))) %>%
-        select(.data$revenera_product_id, .data$properties_category,
-               .data$property_name, .data$property_friendly_name,
-               .data$filter_type, .data$data_type, .data$supports_regex_f,
-               .data$supports_meta_f, .data$supports_null_f)
-
+        mutate(
+          properties_category = as.character(.data$properties_category),
+          revenera_product_id = x,
+          property_name = as.character(.data$name),
+          property_friendly_name = as.character(.data$friendlyName),
+          filter_type = as.character(.data$filterType),
+          data_type = as.character(.data$dataType),
+          supports_regex_f = as.character(if_else(.data$supportsRegex,
+            1, 0
+          )),
+          supports_meta_f = as.character(if_else(.data$supportsMeta,
+            1, 0
+          )),
+          supports_null_f = as.character(if_else(.data$supportsNull,
+            1, 0
+          ))
+        ) %>%
+        select(
+          .data$revenera_product_id, .data$properties_category,
+          .data$property_name, .data$property_friendly_name,
+          .data$filter_type, .data$data_type, .data$supports_regex_f,
+          .data$supports_meta_f, .data$supports_null_f
+        )
     }
 
-    product_df <- map_df(seq_len(length(content_json$results$category)),
-                         build_data_frame)
-
+    product_df <- map_df(
+      seq_len(length(content_json$results$category)),
+      build_data_frame
+    )
   }
 
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_properties)
   return(all_products_df)
-
 }

@@ -27,20 +27,22 @@
 #' end_date <- Sys.Date() - 1
 #' session_id <- revenera_auth(rev_user, rev_pwd)
 #' }
- 
+#'
 revenera_auth <- function(rev_username, rev_password) {
-
   revenera_login <- httr::RETRY("POST",
-                                 url = "https://api.revulytics.com/auth/login",
-                                 body = list(user = rev_username,
-                                             password = rev_password,
-                                             useCookies = FALSE),
-                                 encode = "json",
-                                 times = 4,
-                                 pause_min = 10,
-                                 terminate_on = NULL,
-                                 terminate_on_success = TRUE,
-                                 pause_cap = 5)
+    url = "https://api.revulytics.com/auth/login",
+    body = list(
+      user = rev_username,
+      password = rev_password,
+      useCookies = FALSE
+    ),
+    encode = "json",
+    times = 4,
+    pause_min = 10,
+    terminate_on = NULL,
+    terminate_on_success = TRUE,
+    pause_cap = 5
+  )
 
   reveneraR::check_status(revenera_login)
 

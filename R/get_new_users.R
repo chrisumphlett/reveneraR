@@ -44,17 +44,18 @@
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
 #' session_id <- revenera_auth(rev_user, rev_pwd)
-#' monthly_new_users <- get_new_users(product_ids_list,
-#' "month",
-#' start_date,
-#' end_date,
-#' session_id,
-#' rev_user)
+#' monthly_new_users <- get_new_users(
+#'   product_ids_list,
+#'   "month",
+#'   start_date,
+#'   end_date,
+#'   session_id,
+#'   rev_user
+#' )
 #' }
-
+#'
 get_new_users <- function(rev_product_ids, rev_date_type, rev_start_date,
                           rev_end_date, rev_session_id, rev_username) {
-
   . <- NA # prevent variable binding note for the dot
 
   get_by_product <- function(x, rev_date_type) {
@@ -69,15 +70,18 @@ get_new_users <- function(rev_product_ids, rev_date_type, rev_start_date,
     )
 
     request <- httr::RETRY("POST",
-                           url = paste0("https://api.revulytics.com/",
-                           "reporting/generic/dateRange?responseFormat=raw"),
-                           body = request_body,
-                           encode = "json",
-                           times = 4,
-                           pause_min = 10,
-                           terminate_on = NULL,
-                           terminate_on_success = TRUE,
-                           pause_cap = 5)
+      url = paste0(
+        "https://api.revulytics.com/",
+        "reporting/generic/dateRange?responseFormat=raw"
+      ),
+      body = request_body,
+      encode = "json",
+      times = 4,
+      pause_min = 10,
+      terminate_on = NULL,
+      terminate_on_success = TRUE,
+      pause_cap = 5
+    )
 
     reveneraR::check_status(request)
 
@@ -87,8 +91,10 @@ get_new_users <- function(rev_product_ids, rev_date_type, rev_start_date,
     iteration_df <- as.data.frame(unlist(content_json$results)) %>%
       cbind(rownames(.)) %>%
       dplyr::rename(new_user_date = 2, new_users = 1) %>%
-      dplyr::mutate(new_user_date = as.Date(substr(.data$new_user_date, 1, 10)),
-                    revenera_product_id = x)
+      dplyr::mutate(
+        new_user_date = as.Date(substr(.data$new_user_date, 1, 10)),
+        revenera_product_id = x
+      )
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }

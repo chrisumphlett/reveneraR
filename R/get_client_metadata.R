@@ -55,39 +55,45 @@
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revenera_auth(rev_user, rev_pwd)
-#' product_properties <- get_product_properties(product_ids_list, session_id,
-#' rev_user)
+#' product_properties <- get_product_properties(
+#'   product_ids_list, session_id,
+#'   rev_user
+#' )
 #' sink("output_filename.txt")
 #' sink(stdout(), type = "message")
-#' client_metadata <- get_client_metadata(product_ids_list, session_id,
-#' rev_user, product_properties, c("Property1", "Property2"),
-#' start_date, end_date)
+#' client_metadata <- get_client_metadata(
+#'   product_ids_list, session_id,
+#'   rev_user, product_properties, c("Property1", "Property2"),
+#'   start_date, end_date
+#' )
 #' sink()
 #' }
-
-
+#'
 get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username,
                                 product_properties_df, desired_properties,
                                 installed_start_date, installed_end_date) {
-
-  product_df_base <- tibble(revenera_product_id = character(),
-                            client_id = character(), property_friendly_name =
-                              character(), property_value = character()
-                            )
+  product_df_base <- tibble(
+    revenera_product_id = character(),
+    client_id = character(), property_friendly_name =
+      character(), property_value = character()
+  )
 
   get_one_product_metadata <- function(product_iter) {
-
     message(paste0("Starting product id ", product_iter))
 
     custom_property_names <- product_properties_df %>%
-      filter(.data$revenera_product_id == product_iter,
-             .data$property_friendly_name %in% desired_properties) %>%
+      filter(
+        .data$revenera_product_id == product_iter,
+        .data$property_friendly_name %in% desired_properties
+      ) %>%
       select(.data$property_name) %>%
       pull()
 
     custom_property_friendly_names <- product_properties_df %>%
-      filter(.data$revenera_product_id == product_iter,
-             .data$property_friendly_name %in% desired_properties) %>%
+      filter(
+        .data$revenera_product_id == product_iter,
+        .data$property_friendly_name %in% desired_properties
+      ) %>%
       select(.data$property_friendly_name) %>%
       pull()
 
@@ -101,35 +107,45 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username,
       i <- i + 1
 
       body <- paste0("{\"user\":\"", rev_username,
-                     "\",\"sessionId\":\"",
-                     rev_session_id,
-                     "\",\"productId\":",
-                     product_iter,
-                     ",\"startAtClientId\":",
-                     jsonlite::toJSON(ifelse(exists("content_json"),
-                                             content_json$nextClientId,
-                                             NA_character_), auto_unbox = TRUE),
-                     paste0(",\"globalFilters\":{\"dateInstalled\":",
-                            "{\"type\":\"dateRange\",\"min\":\"",
-                            installed_start_date,
-                            "\",\"max\":\"",
-                            installed_end_date,
-                            "\"}},"),
-                     paste0("\"properties\":",
-                            jsonlite::toJSON(array(c(custom_property_names)),
-                                             auto_unbox = TRUE), "}"),
-      sep = "")
+        "\",\"sessionId\":\"",
+        rev_session_id,
+        "\",\"productId\":",
+        product_iter,
+        ",\"startAtClientId\":",
+        jsonlite::toJSON(ifelse(exists("content_json"),
+          content_json$nextClientId,
+          NA_character_
+        ), auto_unbox = TRUE),
+        paste0(
+          ",\"globalFilters\":{\"dateInstalled\":",
+          "{\"type\":\"dateRange\",\"min\":\"",
+          installed_start_date,
+          "\",\"max\":\"",
+          installed_end_date,
+          "\"}},"
+        ),
+        paste0(
+          "\"properties\":",
+          jsonlite::toJSON(array(c(custom_property_names)),
+            auto_unbox = TRUE
+          ), "}"
+        ),
+        sep = ""
+      )
 
       request <- httr::RETRY("POST",
-                            url = paste0("https://api.revulytics.com/",
-                            "reporting/clientPropertyList"),
-                            body = body,
-                            encode = "json",
-                            times = 4,
-                            pause_min = 10,
-                            terminate_on = NULL,
-                            terminate_on_success = TRUE,
-                            pause_cap = 5)
+        url = paste0(
+          "https://api.revulytics.com/",
+          "reporting/clientPropertyList"
+        ),
+        body = body,
+        encode = "json",
+        times = 4,
+        pause_min = 10,
+        terminate_on = NULL,
+        terminate_on_success = TRUE,
+        pause_cap = 5
+      )
 
       reveneraR::check_status(request)
 
@@ -142,35 +158,40 @@ get_client_metadata <- function(rev_product_ids, rev_session_id, rev_username,
         properties <- as.data.frame(content_json$results[c])
       }
 
-      product_df <- purrr::map_dfc(seq_len(length(content_json$results)),
-                                   build_data_frame)
+      product_df <- purrr::map_dfc(
+        seq_len(length(content_json$results)),
+        build_data_frame
+      )
       names(product_df)[2:length(content_json$results)] <-
         c(custom_property_friendly_names)
       product_df2 <- product_df %>%
         tidyr::pivot_longer(tidyselect::all_of(custom_property_friendly_names),
-                            names_to = "property_friendly_name",
-                            values_to = "property_value") %>%
-        mutate(property_value = dplyr::if_else(.data$property_value == "<NULL>"
-                                          | .data$property_value == "",
-                                        NA_character_,
-                                        .data$property_value),
-               revenera_product_id = product_iter) %>%
+          names_to = "property_friendly_name",
+          values_to = "property_value"
+        ) %>%
+        mutate(
+          property_value = dplyr::if_else(.data$property_value == "<NULL>" |
+            .data$property_value == "",
+          NA_character_,
+          .data$property_value
+          ),
+          revenera_product_id = product_iter
+        ) %>%
         rename(client_id = .data$clientId) %>%
-        select(.data$revenera_product_id, .data$client_id,
-               .data$property_friendly_name, .data$property_value) %>%
+        select(
+          .data$revenera_product_id, .data$client_id,
+          .data$property_friendly_name, .data$property_value
+        ) %>%
         filter(!is.na(.data$property_value))
 
       product_df_base <- dplyr::bind_rows(product_df2, product_df_base)
 
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
-
     }
 
     return(product_df_base)
-
   }
 
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_metadata)
   return(all_products_df)
-
 }

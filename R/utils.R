@@ -13,19 +13,25 @@
 check_status <- function(request_obj) {
   if (request_obj$status_code != 200) {
     if (request_obj$status_code >= 500) {
-      message(paste0("There was an error on the server and the request could
+      message(paste0(
+        "There was an error on the server and the request could
                      not be completed. The API returned with an error: ",
-                     request_obj$status_code))
+        request_obj$status_code
+      ))
       stop_quietly()
     } else if (request_obj$status_code <= 499 &&
-                request_obj$status_code >= 400) {
-      message(paste0("There is an error in the request submitted and
+      request_obj$status_code >= 400) {
+      message(paste0(
+        "There is an error in the request submitted and
                      the API returned with an error: ",
-                     request_obj$status_code))
+        request_obj$status_code
+      ))
       stop_quietly()
     } else {
-      message(paste0("The API returned with an error: %s",
-                     request_obj$status_code))
+      message(paste0(
+        "The API returned with an error: %s",
+        request_obj$status_code
+      ))
       stop_quietly()
     }
   }

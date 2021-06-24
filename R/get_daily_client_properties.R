@@ -57,39 +57,43 @@
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revenera_auth(rev_user, rev_pwd)
-#' product_properties <- get_product_properties(product_ids_list,
-#' session_id, rev_user)
+#' product_properties <- get_product_properties(
+#'   product_ids_list,
+#'   session_id, rev_user
+#' )
 #' sink("output_filename.txt")
 #' sink(stdout(), type = "message")
 #' daily_client_properties <- get_daily_client_properties(product_ids_list,
-#' session_id, rev_user,
-#' product_properties, c("Property1", "Property2"), start_date, end_date,
-#' daily_start_date = "01-01-2020", daily_end_date = "01-31-2020")
+#'   session_id, rev_user,
+#'   product_properties, c("Property1", "Property2"), start_date, end_date,
+#'   daily_start_date = "01-01-2020", daily_end_date = "01-31-2020"
+#' )
 #' sink()
 #' }
-
-
+#'
 get_daily_client_properties <- function(rev_product_ids, rev_session_id,
                                         rev_username, product_properties_df,
                                         desired_properties,
                                         installed_start_date,
                                         installed_end_date,
                                         daily_start_date, daily_end_date) {
-
   trialpurchase_df <- data.frame()
   get_one_product_metadata <- function(product_iter) {
-
     message(paste0("Starting product id ", product_iter))
 
     custom_property_names <- product_properties_df %>%
-      filter(.data$revenera_product_id == product_iter,
-             .data$property_friendly_name %in% desired_properties) %>%
+      filter(
+        .data$revenera_product_id == product_iter,
+        .data$property_friendly_name %in% desired_properties
+      ) %>%
       select(.data$property_name) %>%
       pull()
 
     custom_property_friendly_names <- product_properties_df %>%
-      filter(.data$revenera_product_id == product_iter,
-             .data$property_friendly_name %in% desired_properties) %>%
+      filter(
+        .data$revenera_product_id == product_iter,
+        .data$property_friendly_name %in% desired_properties
+      ) %>%
       select(.data$property_friendly_name) %>%
       pull()
 
@@ -103,89 +107,114 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
       i <- i + 1
 
       body <- paste0("{\"user\":\"", rev_username,
-                      "\",\"sessionId\":\"",
-                      rev_session_id,
-                      "\",\"productId\":",
-                      product_iter,
-                      ",\"startAtClientId\":",
-                    jsonlite::toJSON(ifelse(exists("content_json"),
-                                            content_json$nextClientId,
-                                            NA_character_), auto_unbox = TRUE),
-                     paste0(",\"globalFilters\":{\"dateInstalled\":",
-                            "{\"type\":\"dateRange\",\"min\":\"",
-                            installed_start_date,
-                            "\",\"max\":\"",
-                            installed_end_date,
-                            "\"}},"),
-                     paste0("\"properties\":",
-                            jsonlite::toJSON(array(c("geography.country")),
-                                             auto_unbox = TRUE), ","),
-                     paste0("\"retDailyData\":{\"startDate\":\"",
-                            daily_start_date,
-                            "\",\"stopDate\":\"",
-                            daily_end_date,
-                            "\",\"properties\":",
-                            jsonlite::toJSON(array(c(custom_property_names)),
-                                             auto_unbox = TRUE),
-                            "}}"),
-                     sep = "")
+        "\",\"sessionId\":\"",
+        rev_session_id,
+        "\",\"productId\":",
+        product_iter,
+        ",\"startAtClientId\":",
+        jsonlite::toJSON(ifelse(exists("content_json"),
+          content_json$nextClientId,
+          NA_character_
+        ), auto_unbox = TRUE),
+        paste0(
+          ",\"globalFilters\":{\"dateInstalled\":",
+          "{\"type\":\"dateRange\",\"min\":\"",
+          installed_start_date,
+          "\",\"max\":\"",
+          installed_end_date,
+          "\"}},"
+        ),
+        paste0(
+          "\"properties\":",
+          jsonlite::toJSON(array(c("geography.country")),
+            auto_unbox = TRUE
+          ), ","
+        ),
+        paste0(
+          "\"retDailyData\":{\"startDate\":\"",
+          daily_start_date,
+          "\",\"stopDate\":\"",
+          daily_end_date,
+          "\",\"properties\":",
+          jsonlite::toJSON(array(c(custom_property_names)),
+            auto_unbox = TRUE
+          ),
+          "}}"
+        ),
+        sep = ""
+      )
 
       terminal_codes <- list(c("400", "401", "403", "404"))
 
       request <- httr::RETRY("POST",
-                             url = paste0("https://api.revulytics.com/",
-                                          "reporting/clientPropertyList"),
-                             body = body,
-                             encode = "json",
-                             times = 4,
-                             pause_min = 10,
-                             terminate_on = NULL,
-                             terminate_on_success = TRUE,
-                             pause_cap = 5)
+        url = paste0(
+          "https://api.revulytics.com/",
+          "reporting/clientPropertyList"
+        ),
+        body = body,
+        encode = "json",
+        times = 4,
+        pause_min = 10,
+        terminate_on = NULL,
+        terminate_on_success = TRUE,
+        pause_cap = 5
+      )
 
       reveneraR::check_status(request)
 
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
 
-       message(paste0("nextClientId = ", content_json$nextClientId))
+      message(paste0("nextClientId = ", content_json$nextClientId))
 
       build_data_frame <- function(c) {
         properties <- as.data.frame(content_json$results[c])
       }
 
-      product_df <- purrr::map_dfc(seq_len(length(content_json$results)),
-                                   build_data_frame)
+      product_df <- purrr::map_dfc(
+        seq_len(length(content_json$results)),
+        build_data_frame
+      )
 
       colnames(product_df)[1] <- "client_id"
 
       daily_propertytype <- product_df$dailyData
 
       daily_propertytype_flat <- bind_rows(daily_propertytype,
-                                           .id = "column_label") %>%
-        mutate(id = as.numeric(.data$column_label),
-               property_date = as.Date(date)) %>%
+        .id = "column_label"
+      ) %>%
+        mutate(
+          id = as.numeric(.data$column_label),
+          property_date = as.Date(date)
+        ) %>%
         select(-.data$column_label, -date)
 
       suppressMessages(
         names(daily_propertytype_flat)[seq_len(
-          length(custom_property_friendly_names))] <-
+          length(custom_property_friendly_names)
+        )] <-
           c(custom_property_friendly_names)
       )
 
-      client_df <- purrr::map_dfc(seq_len(nrow(product_df)),
-                                  ~ (nrow(product_df[[3]][[.x]]))) %>%
+      client_df <- purrr::map_dfc(
+        seq_len(nrow(product_df)),
+        ~ (nrow(product_df[[3]][[.x]]))
+      ) %>%
         tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
         cbind(product_df) %>%
         filter(.data$b != 0) %>%
         select(3) %>%
         mutate(id = row_number())
 
-      client_df_merged <- merge(x = daily_propertytype_flat, y = client_df,
-                                by = "id", all.x = TRUE) %>%
-        tidyr::pivot_longer(cols = -c("id", "property_date", "client_id"),
-                            names_to = "property_name",
-                            values_to = "property_value") %>%
+      client_df_merged <- merge(
+        x = daily_propertytype_flat, y = client_df,
+        by = "id", all.x = TRUE
+      ) %>%
+        tidyr::pivot_longer(
+          cols = -c("id", "property_date", "client_id"),
+          names_to = "property_name",
+          values_to = "property_value"
+        ) %>%
         select(-id)
 
       final_df <- client_df_merged %>%
@@ -197,14 +226,11 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
         mutate(revenera_product_id = product_iter)
 
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
-
     }
 
-     return(trialpurchase_df)
-
+    return(trialpurchase_df)
   }
 
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_metadata)
-   return(all_products_df)
-
+  return(all_products_df)
 }

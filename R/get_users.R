@@ -54,65 +54,74 @@
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
 #' session_id <- revenera_auth(rev_user, rev_pwd)
-#' global_filter <- paste0(",\"globalFilters\":{\"licenseType\":",
-#' "{\"type\":\"string\",\"value\":\"purchased\"}}")
+#' global_filter <- paste0(
+#'   ",\"globalFilters\":{\"licenseType\":",
+#'   "{\"type\":\"string\",\"value\":\"purchased\"}}"
+#' )
 #' monthly_active_users <- get_users(product_ids_list,
-#' "active",
-#' "month",
-#' start_date,
-#' end_date,
-#' session_id,
-#' rev_user,
-#' optional_json = global_filter)
+#'   "active",
+#'   "month",
+#'   start_date,
+#'   end_date,
+#'   session_id,
+#'   rev_user,
+#'   optional_json = global_filter
+#' )
 #' }
-
-
 get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
                       rev_end_date, rev_session_id, rev_username,
                       lost_days = 30, lost_reported = "dateLastSeen",
                       optional_json = "") {
-
   . <- NA # prevent variable binding note for the dot
 
   get_by_product <- function(x, rev_date_type) {
     request_body <- paste0("{\"user\":\"", rev_username,
-                   "\",\"sessionId\":\"",
-                   rev_session_id,
-                   "\",\"productId\":",
-                   x,
-                   ",\"startDate\":\"",
-                   rev_start_date,
-                   "\",\"stopDate\":\"",
-                   rev_end_date,
-                   "\",\"daysUntilDeclaredLost\":",
-                   lost_days,
-                   ",\"dateReportedLost\":\"",
-                   lost_reported,
-                   "\",\"dateSplit\":\"",
-                   rev_date_type,
-                   "\",\"startAtClientId\":",
-                   jsonlite::toJSON(ifelse(
-                     exists("content_json"), content_json$nextClientId,
-                     NA_character_),
-                     auto_unbox = TRUE),
-                   paste0(",\"clientStatus\":",
-                          jsonlite::toJSON(array(c(user_type)),
-                                           auto_unbox = TRUE)),
-                   optional_json,
-                   "}",
-                   sep = "")
+      "\",\"sessionId\":\"",
+      rev_session_id,
+      "\",\"productId\":",
+      x,
+      ",\"startDate\":\"",
+      rev_start_date,
+      "\",\"stopDate\":\"",
+      rev_end_date,
+      "\",\"daysUntilDeclaredLost\":",
+      lost_days,
+      ",\"dateReportedLost\":\"",
+      lost_reported,
+      "\",\"dateSplit\":\"",
+      rev_date_type,
+      "\",\"startAtClientId\":",
+      jsonlite::toJSON(ifelse(
+        exists("content_json"), content_json$nextClientId,
+        NA_character_
+      ),
+      auto_unbox = TRUE
+      ),
+      paste0(
+        ",\"clientStatus\":",
+        jsonlite::toJSON(array(c(user_type)),
+          auto_unbox = TRUE
+        )
+      ),
+      optional_json,
+      "}",
+      sep = ""
+    )
 
     request <- httr::RETRY("POST",
-                           url = paste0("https://api.revulytics.com/",
-                                        "reporting/generic/dateRange?",
-                                        "responseFormat=raw"),
-                           body = request_body,
-                           encode = "json",
-                           times = 4,
-                           pause_min = 10,
-                           terminate_on = NULL,
-                           terminate_on_success = TRUE,
-                           pause_cap = 5)
+      url = paste0(
+        "https://api.revulytics.com/",
+        "reporting/generic/dateRange?",
+        "responseFormat=raw"
+      ),
+      body = request_body,
+      encode = "json",
+      times = 4,
+      pause_min = 10,
+      terminate_on = NULL,
+      terminate_on_success = TRUE,
+      pause_cap = 5
+    )
 
     reveneraR::check_status(request)
 
@@ -123,8 +132,10 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     iteration_df <- as.data.frame(unlist(content_json$results)) %>%
       cbind(rownames(.)) %>%
       dplyr::rename(user_date = 2, users = 1) %>%
-      dplyr::mutate(user_date = as.Date(substr(.data$user_date, 1, 10)),
-                    revenera_product_id = x)
+      dplyr::mutate(
+        user_date = as.Date(substr(.data$user_date, 1, 10)),
+        revenera_product_id = x
+      )
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }

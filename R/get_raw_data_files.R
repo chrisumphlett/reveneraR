@@ -39,13 +39,11 @@
 #' file_list <- dplyr::pull(files_df, var = file_name)
 #' for (f in file_list) {
 #'   url <- dplyr::filter(files_df, file_name == f) %>%
-#'   dplyr::pull(download_url)
+#'     dplyr::pull(download_url)
 #'   download.file(url, mode = "wb", destfile = "download_file_location.zip")
 #' }
 #' }
-
 get_raw_data_files <- function(rev_product_ids, rev_session_id, rev_username) {
-
   . <- NA # prevent variable binding note for the dot
   get_by_product <- function(x) {
     get_files_body <- list(
@@ -55,19 +53,23 @@ get_raw_data_files <- function(rev_product_ids, rev_session_id, rev_username) {
     )
 
     get_files_request <- httr::RETRY("POST",
-                           url = paste0("https://api.revulytics.com/",
-                           "rawEvents/download/listFiles"),
-                           body = get_files_body,
-                           encode = "json",
-                           times = 4,
-                           pause_min = 10,
-                           terminate_on = NULL,
-                           terminate_on_success = TRUE,
-                           pause_cap = 5)
+      url = paste0(
+        "https://api.revulytics.com/",
+        "rawEvents/download/listFiles"
+      ),
+      body = get_files_body,
+      encode = "json",
+      times = 4,
+      pause_min = 10,
+      terminate_on = NULL,
+      terminate_on_success = TRUE,
+      pause_cap = 5
+    )
     reveneraR::check_status(get_files_request)
 
     request_content <- httr::content(get_files_request, "text",
-                                     encoding = "ISO-8859-1")
+      encoding = "ISO-8859-1"
+    )
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
     files_df <- as.data.frame(content_json[2])
     file_list <- dplyr::pull(files_df, 1)
@@ -80,17 +82,21 @@ get_raw_data_files <- function(rev_product_ids, rev_session_id, rev_username) {
         fileName = filenm
       )
       download_request <- httr::RETRY("POST",
-                                      url = paste0("https://api.revulytics.com",
-                                      "/rawEvents/download/getDownloadUrl"),
-                                      body = download_body,
-                                      encode = "json",
-                                      times = 4,
-                                      pause_min = 10,
-                                      terminate_on = NULL,
-                                      terminate_on_success = TRUE,
-                                      pause_cap = 5)
+        url = paste0(
+          "https://api.revulytics.com",
+          "/rawEvents/download/getDownloadUrl"
+        ),
+        body = download_body,
+        encode = "json",
+        times = 4,
+        pause_min = 10,
+        terminate_on = NULL,
+        terminate_on_success = TRUE,
+        pause_cap = 5
+      )
       request_content <- httr::content(download_request, "text",
-                                       encoding = "ISO-8859-1")
+        encoding = "ISO-8859-1"
+      )
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
       file_url_df <- as.data.frame(content_json[[2]]) %>%
         mutate(file_name = filenm) %>%
