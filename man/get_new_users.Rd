@@ -37,17 +37,17 @@ unique date within the range
 \description{
 For a given period of time (a day, week, or month) Revenera' API
 summarizes and returns the number of new users. With this function
-you can return daily, weekly, or monthly new users for multiple 
+you can return daily, weekly, or monthly new users for multiple
 product ids.
 }
 \details{
 You can specify a start and end date but Revenera does not store
-an indefinite period of historical data. In my experience this is 
+an indefinite period of historical data. In my experience this is
 three years but I do not know if this varies on a product or client
 level.
 
 It is not recommended that your username be stored directly in your
-code. There are various methods and packages available that are more 
+code. There are various methods and packages available that are more
 secure; this package does not require you to use any one in particular.
 }
 \examples{
@@ -57,12 +57,15 @@ rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revenera_auth(rev_user, rev_pwd)  
-monthly_new_users <- get_new_users(product_ids_list,
-"month",
-start_date,
-end_date,
-session_id,
-rev_user)
+session_id <- revenera_auth(rev_user, rev_pwd)
+monthly_new_users <- get_new_users(
+  product_ids_list,
+  "month",
+  start_date,
+  end_date,
+  session_id,
+  rev_user
+)
 }
+
 }

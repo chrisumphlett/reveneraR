@@ -60,7 +60,7 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id,
       pause_cap = 5
     )
 
-    reveneraR::check_status(request)
+    check_status(request)
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)

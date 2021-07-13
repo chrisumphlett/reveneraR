@@ -65,7 +65,7 @@ get_raw_data_files <- function(rev_product_ids, rev_session_id, rev_username) {
       terminate_on_success = TRUE,
       pause_cap = 5
     )
-    reveneraR::check_status(get_files_request)
+    check_status(get_files_request)
 
     request_content <- httr::content(get_files_request, "text",
       encoding = "ISO-8859-1"

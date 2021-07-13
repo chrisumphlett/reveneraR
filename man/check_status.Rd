@@ -11,7 +11,7 @@ If status code is not 200, returns a message to
 console with appropriate error message and stops execution.
 }
 \description{
-This function is called by other functions that submit a 
+This function is called by other functions that submit a
 requests to Revenera API. It checks the status code
 returned and tells the user if there was an error code and
 exits the function.

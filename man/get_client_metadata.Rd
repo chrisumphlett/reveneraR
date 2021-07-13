@@ -23,37 +23,37 @@ Revenera API. This can be obtained with revenera_auth().}
 
 \item{rev_username}{Revenera username.}
 
-\item{product_properties_df}{Data frame with available properties 
+\item{product_properties_df}{Data frame with available properties
 for all product ids. Can obtain with the get_product_properties function.}
 
 \item{desired_properties}{The property names of the metadata you want
 to collect.}
 
-\item{installed_start_date}{Date object for the starting date of 
+\item{installed_start_date}{Date object for the starting date of
 product installations.}
 
-\item{installed_end_date}{Date object for the ending date of 
+\item{installed_end_date}{Date object for the ending date of
 product installations.}
 }
 \value{
 Data frame with selected properties for each Client Id.
 }
 \description{
-Returns metadata (what Revenera calls "properties") for every 
+Returns metadata (what Revenera calls "properties") for every
 Client Id installed during user-provided date range for all product
 Ids in a list.
 }
 \details{
 It is not recommended that your username be stored directly in your
-code. There are various methods and packages available that are more 
+code. There are various methods and packages available that are more
 secure; this package does not require you to use any one in particular.
 
 This API call can only return 200 Client Ids at a time. It will take a
 long time to execute if you have many Client Ids, as the function will
 submit requests to the API repeatedly; this may even result in a timeout
-error from the server. In order to provide data for troubleshooting 
-this function will write a message to the console after each call. 
-It is recommended that you divert the console output to a text file. 
+error from the server. In order to provide data for troubleshooting
+this function will write a message to the console after each call.
+It is recommended that you divert the console output to a text file.
 You can do this in multiple ways, including with the sink function (see
 example for how to do this).
 
@@ -66,12 +66,19 @@ product Ids.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)  
-product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
-sink("output_filename.txt") 
+session_id <- revenera_auth(rev_user, rev_pwd)
+product_properties <- get_product_properties(
+  product_ids_list, session_id,
+  rev_user
+)
+sink("output_filename.txt")
 sink(stdout(), type = "message")
-client_metadata <- get_client_metadata(product_ids_list, session_id, rev_user,
-product_properties, c("Property1", "Property2"), start_date, end_date)
+client_metadata <- get_client_metadata(
+  product_ids_list, session_id,
+  rev_user, product_properties, c("Property1", "Property2"),
+  start_date, end_date
+)
 sink()
 }
+
 }

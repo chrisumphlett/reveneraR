@@ -123,7 +123,7 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
       pause_cap = 5
     )
 
-    reveneraR::check_status(request)
+    check_status(request)
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
 

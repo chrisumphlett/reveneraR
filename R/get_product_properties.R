@@ -60,7 +60,10 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
       terminate_on_success = TRUE,
       pause_cap = 5
     )
-    reveneraR::check_status(request)
+
+    # nolint start
+    check_status(request)
+    # nolint end
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)

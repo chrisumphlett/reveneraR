@@ -19,18 +19,18 @@ Revenera API. This can be obtained with revenera_auth().}
 Data frame with available files and URLs.
 }
 \description{
-Retrieves a list of raw data file exports that are available for a 
+Retrieves a list of raw data file exports that are available for a
 list of product IDs and the download URL for each file.
 }
 \details{
 Raw data files are an add-on service available through Revenera. If
 these files are available they can be downloaded manually from the
-user portal, or downloaded via R. This function uses the API to 
+user portal, or downloaded via R. This function uses the API to
 first retrieve the list of files, and then get the download URL for
 each file.
 
 It is not recommended that your username be stored directly in your
-code. There are various methods and packages available that are more 
+code. There are various methods and packages available that are more
 secure; this package does not require you to use any one in particular.
 }
 \examples{
@@ -38,11 +38,12 @@ secure; this package does not require you to use any one in particular.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)  
+session_id <- revenera_auth(rev_user, rev_pwd)
 files_df <- get_raw_data_files(product_ids_list, session_id, rev_user)
 file_list <- dplyr::pull(files_df, var = file_name)
-for (f in file_list){
-  url <- dplyr::filter(files_df, file_name == f) \%>\% dplyr::pull(download_url)
+for (f in file_list) {
+  url <- dplyr::filter(files_df, file_name == f) \%>\%
+    dplyr::pull(download_url)
   download.file(url, mode = "wb", destfile = "download_file_location.zip")
 }
 }

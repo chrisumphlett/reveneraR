@@ -40,10 +40,10 @@ Revenera API. This can be obtained with revenera_auth().}
 days of inactivity before a client is considered lost.}
 
 \item{lost_reported}{Required for lost users, should the lost date
-be the first day of inactivity ("dateLastSeen") or date 
+be the first day of inactivity ("dateLastSeen") or date
 client is considered lost ("dateDeclaredLost").}
 
-\item{optional_json}{Optional JSON text to add to the request body 
+\item{optional_json}{Optional JSON text to add to the request body
 for things like global filters.}
 }
 \value{
@@ -53,15 +53,15 @@ unique date within the range
 \description{
 For a given period of time (a day, week, or month) Revenera's API
 summarizes and returns the number of active users. With this function
-you can return daily, weekly, or monthly active users for multiple 
+you can return daily, weekly, or monthly active users for multiple
 product ids.
 }
 \details{
 You can specify a start and end date but Revenera does not store
-an indefinite period of historical data. 
+an indefinite period of historical data.
 
 It is not recommended that your username be stored directly in your
-code. There are various methods and packages available that are more 
+code. There are various methods and packages available that are more
 secure; this package does not require you to use any one in particular.
 
 The optional_json parameter is available so that other optional arguments
@@ -76,15 +76,18 @@ product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
 session_id <- revenera_auth(rev_user, rev_pwd)
-global_filter <- paste0(",\"globalFilters\":{\"licenseType\":",
-"{\"type\":\"string\",\"value\":\"purchased\"}}")
+global_filter <- paste0(
+  ",\"globalFilters\":{\"licenseType\":",
+  "{\"type\":\"string\",\"value\":\"purchased\"}}"
+)
 monthly_active_users <- get_users(product_ids_list,
-"active",
-"month",
-start_date,
-end_date,
-session_id,
-rev_user,
-optional_json = global_filter)
+  "active",
+  "month",
+  start_date,
+  end_date,
+  session_id,
+  rev_user,
+  optional_json = global_filter
+)
 }
 }

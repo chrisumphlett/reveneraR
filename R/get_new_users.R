@@ -83,7 +83,7 @@ get_new_users <- function(rev_product_ids, rev_date_type, rev_start_date,
       pause_cap = 5
     )
 
-    reveneraR::check_status(request)
+    check_status(request)
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)

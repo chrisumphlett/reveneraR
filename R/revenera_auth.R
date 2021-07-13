@@ -44,7 +44,7 @@ revenera_auth <- function(rev_username, rev_password) {
     pause_cap = 5
   )
 
-  reveneraR::check_status(revenera_login)
+  check_status(revenera_login)
 
   rev_session_id <- httr::content(revenera_login)$sessionId
 

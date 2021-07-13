@@ -25,7 +25,7 @@ for each product id by property category.
 }
 \details{
 It is not recommended that your username be stored directly in your
-code. There are various methods and packages available that are more 
+code. There are various methods and packages available that are more
 secure; this package does not require you to use any one in particular.
 }
 \examples{
@@ -33,7 +33,11 @@ secure; this package does not require you to use any one in particular.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)  
-product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
+session_id <- revenera_auth(rev_user, rev_pwd)
+product_properties <- get_product_properties(
+  product_ids_list,
+  session_id, rev_user
+)
 }
+
 }
