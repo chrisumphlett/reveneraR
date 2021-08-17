@@ -37,4 +37,3 @@ You will need your own credentials to use the package. A workflow could be:
 ```
 
 More info on the API is available at https://docs.revenera.com/ui560/report/.
-
