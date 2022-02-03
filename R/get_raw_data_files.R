@@ -72,40 +72,43 @@ get_raw_data_files <- function(rev_product_ids, rev_session_id, rev_username) {
     )
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
     files_df <- as.data.frame(content_json[2])
-    file_list <- dplyr::pull(files_df, 1)
-
-    get_download_urls <- function(filenm) {
-      download_body <- list(
-        user = rev_username,
-        sessionId = rev_session_id,
-        productId = x,
-        fileName = filenm
-      )
-      download_request <- httr::RETRY("POST",
-        url = paste0(
-          "https://api.revulytics.com",
-          "/rawEvents/download/getDownloadUrl"
-        ),
-        body = download_body,
-        encode = "json",
-        times = 4,
-        pause_min = 10,
-        terminate_on = NULL,
-        terminate_on_success = TRUE,
-        pause_cap = 5
-      )
-      request_content <- httr::content(download_request, "text",
-        encoding = "ISO-8859-1"
-      )
-      content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-      file_url_df <- as.data.frame(content_json[[2]]) %>%
-        mutate(file_name = filenm) %>%
-        left_join(files_df, by = c("file_name" = "fileList.fileName")) %>%
-        rename(download_url = 1, file_date = 3, file_size_kb = 4)
-      return(file_url_df)
+    
+    if(nrow(files_df) > 0) {
+      file_list <- dplyr::pull(files_df, 1)
+  
+      get_download_urls <- function(filenm) {
+        download_body <- list(
+          user = rev_username,
+          sessionId = rev_session_id,
+          productId = x,
+          fileName = filenm
+        )
+        download_request <- httr::RETRY("POST",
+          url = paste0(
+            "https://api.revulytics.com",
+            "/rawEvents/download/getDownloadUrl"
+          ),
+          body = download_body,
+          encode = "json",
+          times = 4,
+          pause_min = 10,
+          terminate_on = NULL,
+          terminate_on_success = TRUE,
+          pause_cap = 5
+        )
+        request_content <- httr::content(download_request, "text",
+          encoding = "ISO-8859-1"
+        )
+        content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
+        file_url_df <- as.data.frame(content_json[[2]]) %>%
+          mutate(file_name = filenm) %>%
+          left_join(files_df, by = c("file_name" = "fileList.fileName")) %>%
+          rename(download_url = 1, file_date = 3, file_size_kb = 4)
+        return(file_url_df)
+      }
+      all_file_url_df <- purrr::map_dfr(file_list, get_download_urls)
+      return(all_file_url_df)
     }
-    all_file_url_df <- purrr::map_dfr(file_list, get_download_urls)
-    return(all_file_url_df)
   }
   all_pids_df <- purrr::map_dfr(rev_product_ids, get_by_product)
   return(all_pids_df)
