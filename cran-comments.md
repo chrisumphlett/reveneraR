@@ -1,14 +1,11 @@
-## New package (sort of)
+## Changes in this version (compared to reveneraR 0.1.0)
 
-* This is an update to revulyticsR 0.0.3. The name of the company has changed multiple times and I have gone through and changed all references to the old name and changed the package name too. So this is the first submission of this package but most of it was in CRAN previously.
- 
-## Changes in this version (compared to revulyticsR 0.0.3)
-* `get_users()` created as a more generalized function, and deprecated `get_active_users()` and `get_new_users()`. New function also facilitates getting lost users and optional API parameters can be specified with JSON.
-* All references to Revulytics changed to Revenera (except the api endpoint URL which has not yet changed).
+* `styler` used to clean up formatting.
+* If a product Id does not have any raw data files, instead of having an error when trying to retrieve the download URLs, that part is skipped in `get_raw_data_files()`.
 
 ## Test environments
  
-* Developed on and tested with Windows 10 and R 4.0.
+* Developed on and tested with Windows 10 and R 4.1.
 * Tested on development version of R with devtools::check_win_devel().
 * Tested Fedora and Ubuntu Linux platforms with devtools::check_rhub().
  

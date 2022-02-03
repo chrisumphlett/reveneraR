@@ -1,4 +1,4 @@
-# reveneraR 0.1.0.9000
+# reveneraR 0.1.1
 
 * `styler` used to clean up formatting.
 * If a product Id does not have any raw data files, instead of having an error when trying to retrieve the download URLs, that part is skipped in `get_raw_data_files()`.
