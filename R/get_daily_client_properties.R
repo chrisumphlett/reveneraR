@@ -199,22 +199,24 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
         ) %>%
         select(-.data$column_label, -date)
       message("3")
-      suppressWarnings(
+      # suppressWarnings(
         names(daily_propertytype_flat)[seq_len(
           length(custom_property_friendly_names)
         )] <-
           c(custom_property_friendly_names)
-      )
+      # )
       message("5")
-      client_df <- purrr::map_dfc(
-        seq_len(nrow(product_df)),
-        ~ (nrow(product_df[[3]][[.x]]))
-      ) %>%
-        tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
-        cbind(product_df) %>%
-        filter(.data$b != 0) %>%
-        select(3) %>%
-        mutate(id = row_number())
+      suppressMessages(
+        client_df <- purrr::map_dfc(
+          seq_len(nrow(product_df)),
+          ~ (nrow(product_df[[3]][[.x]]))
+        ) %>%
+          tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
+          cbind(product_df) %>%
+          filter(.data$b != 0) %>%
+          select(3) %>%
+          mutate(id = row_number())
+      )
       message("6")
       client_df_merged <- merge(
         x = daily_propertytype_flat, y = client_df,
