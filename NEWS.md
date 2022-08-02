@@ -1,6 +1,7 @@
 # reveneraR 0.1.2
 
 * Added the `chatty` parameter to `get_client_metadata()` and `get_daily_client_properties()`. This turns off the console messaging by default but allows the user to optionally turn it back on. This should save execution time on large runs.
+* Suppressed the message in every iteration produced by `get_client_metadata()` about columns without names.
 
 # reveneraR 0.1.1
 
