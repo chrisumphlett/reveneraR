@@ -199,7 +199,7 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
         ) %>%
         select(-.data$column_label, -date)
 
-      suppressMessages(
+      suppressWarnings(
         names(daily_propertytype_flat)[seq_len(
           length(custom_property_friendly_names)
         )] <-
