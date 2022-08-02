@@ -185,9 +185,7 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
         seq_len(length(content_json$results)),
         build_data_frame
       )
-      message("1")
       colnames(product_df)[1] <- "client_id"
-      message("2")
       daily_propertytype <- product_df$dailyData
 
       daily_propertytype_flat <- bind_rows(daily_propertytype,
@@ -198,14 +196,12 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
           property_date = as.Date(date)
         ) %>%
         select(-.data$column_label, -date)
-      message("3")
-      # suppressWarnings(
-        names(daily_propertytype_flat)[seq_len(
-          length(custom_property_friendly_names)
-        )] <-
-          c(custom_property_friendly_names)
-      # )
-      message("5")
+
+      names(daily_propertytype_flat)[seq_len(
+        length(custom_property_friendly_names)
+      )] <-
+        c(custom_property_friendly_names)
+
       suppressMessages(
         client_df <- purrr::map_dfc(
           seq_len(nrow(product_df)),
@@ -217,7 +213,7 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
           select(3) %>%
           mutate(id = row_number())
       )
-      message("6")
+
       client_df_merged <- merge(
         x = daily_propertytype_flat, y = client_df,
         by = "id", all.x = TRUE
@@ -228,7 +224,7 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
           values_to = "property_value"
         ) %>%
         select(-id)
-      message("7")
+
       final_df <- client_df_merged %>%
         group_by(.data$client_id, .data$property_value) %>%
         slice(which.min(as.Date(.data$property_date, "%Y-%m-%d"))) %>%
