@@ -11,7 +11,8 @@ get_client_metadata(
   product_properties_df,
   desired_properties,
   installed_start_date,
-  installed_end_date
+  installed_end_date,
+  chatty = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,10 @@ product installations.}
 
 \item{installed_end_date}{Date object for the ending date of
 product installations.}
+
+\item{chatty}{The function can be chatty, sending a message to the console
+for every iteration through a product Id. Many API calls may be required
+and the console may get very long and it may slow down the execution.}
 }
 \value{
 Data frame with selected properties for each Client Id.

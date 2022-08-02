@@ -1,11 +1,10 @@
-## Changes in this version (compared to reveneraR 0.1.0)
+## Changes in this version (compared to reveneraR 0.1.1)
 
-* `styler` used to clean up formatting.
-* If a product Id does not have any raw data files, instead of having an error when trying to retrieve the download URLs, that part is skipped in `get_raw_data_files()`.
+* Added the `chatty` parameter to `get_client_metadata()` and `get_daily_client_properties()`. This turns off the console messaging by default but allows the user to optionally turn it back on. This should save execution time on large runs.
 
 ## Test environments
  
-* Developed on and tested with Windows 10 and R 4.1.
+* Developed on and tested with Windows 11 and R 4.1.
 * Tested on development version of R with devtools::check_win_devel().
 * Tested Fedora and Ubuntu Linux platforms with devtools::check_rhub().
  

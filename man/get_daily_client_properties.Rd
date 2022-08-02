@@ -13,7 +13,8 @@ get_daily_client_properties(
   installed_start_date,
   installed_end_date,
   daily_start_date,
-  daily_end_date
+  daily_end_date,
+  chatty = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,10 @@ properties of the product.}
 
 \item{daily_end_date}{Date object for the ending date of desired
 properties of the product.}
+
+\item{chatty}{The function can be chatty, sending a message to the console
+for every iteration through a product Id. Many API calls may be required
+and the console may get very long and it may slow down the execution.}
 }
 \value{
 Data frame with selected properties for each Client Id.

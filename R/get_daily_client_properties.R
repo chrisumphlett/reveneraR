@@ -36,6 +36,9 @@
 #' properties of the product.
 #' @param daily_end_date Date object for the ending date of desired
 #' properties of the product.
+#' @param chatty The function can be chatty, sending a message to the console
+#' for every iteration through a product Id. Many API calls may be required
+#' and the console may get very long and it may slow down the execution.
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
@@ -76,10 +79,13 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
                                         desired_properties,
                                         installed_start_date,
                                         installed_end_date,
-                                        daily_start_date, daily_end_date) {
+                                        daily_start_date, daily_end_date,
+                                        chatty = FALSE) {
   trialpurchase_df <- data.frame()
   get_one_product_metadata <- function(product_iter) {
-    message(paste0("Starting product id ", product_iter))
+    if (chatty) {
+      message(paste0("Starting product id ", product_iter))
+    }
 
     custom_property_names <- product_properties_df %>%
       filter(
@@ -102,8 +108,10 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
     keep_going <- TRUE
 
     while (keep_going == TRUE) {
-      message(paste0("iteration ", i))
-
+      if (chatty) {
+        message(paste0("iteration ", i))
+      }
+      
       i <- i + 1
 
       body <- paste0("{\"user\":\"", rev_username,
@@ -165,7 +173,9 @@ get_daily_client_properties <- function(rev_product_ids, rev_session_id,
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
 
-      message(paste0("nextClientId = ", content_json$nextClientId))
+      if (chatty) {
+        message(paste0("nextClientId = ", content_json$nextClientId))
+      }
 
       build_data_frame <- function(c) {
         properties <- as.data.frame(content_json$results[c])
