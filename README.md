@@ -1,4 +1,5 @@
 # reveneraR
+
 Connect to Your Revenera (Revulytics) Data with R!
 
 ## The package has been re-named!
@@ -6,12 +7,15 @@ Connect to Your Revenera (Revulytics) Data with R!
 While I was developing the package Revulytics was acquired by Flexera, but retained its name. When I was virtually done with the package Flexera rebranded it as Flexera Usage Intelligence and then Revenera. This package/repo was formerly called revulyticsR (through version 0.0.3). Starting with dev version 0.0.3.9000 and the release of 0.1.0 to Cran and GitHub it will be known as reveneraR.
 
 ## Purpose
+
 reveneraR facilitates making a connection to the Revulytics API and executing various queries. You can use it to get active users (daily, monthly, etc) or to query on various advanced events and get the results in tidy data frames.
 
 ## Installation
+
 The development version can be installed from GitHub: `devtools::install_github("chrisumphlett/reveneraR")`.
 
 ## Usage
+
 A session must first be established before querying the API. This is done using your Revenera username and password with `revultyics_auth()`.
 
 * `get_users()`. For a given period of time (a day, week, or month) Revenera's API summarizes and returns the number of new, active or lost users. With this function you can return daily, weekly, or monthly users for multiple product ids. For lost users the number of days of inactivity to be counted lost is set at 30 by default (but you can change), and the last date of activity is the lost date (you can choose it to be the last date plus the number of days of inactivity, the date it is considered lost).
