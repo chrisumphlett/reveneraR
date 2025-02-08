@@ -1,7 +1,9 @@
 #' Login and Obtain Revenera API Session Id
 #'
-#' A session must first be established before querying the API.
-#' This is done using your Revenera username and password.
+#' An authorizaton cookie must first be established before querying for data.
+#' This is done using your Revenera username and password. If there is an 
+#' active cookie this function will fail. You must `logout()` first then
+#; re-authenticate.
 #'
 #' It is not recommended that these values be stored directly
 #' in your code. There are various methods and packages
@@ -12,9 +14,9 @@
 #' @param rev_password Revenera password.
 #'
 #' @import httr
-#' @importFrom magrittr "%>%"
+#' @import jsonlite
 #'
-#' @return A list with details on connection to the Revenera API.
+#' @return Cookie authorization (which you won't see), or an error message.
 #'
 #' @export
 #'
@@ -22,20 +24,23 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
-#' product_ids_list <- c("123", "456", "789")
-#' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
-#' end_date <- Sys.Date() - 1
-#' session_id <- revenera_auth(rev_user, rev_pwd)
+#' authorize <- revenera_auth(rev_user, rev_pwd)
 #' }
 #'
 revenera_auth <- function(rev_username, rev_password) {
-  revenera_login <- httr::RETRY("POST",
-    url = "https://api.revulytics.com/auth/login",
-    body = list(
-      user = rev_username,
-      password = rev_password,
-      useCookies = FALSE
-    ),
+  
+  auth_endpoint <- "auth/web"
+  body <- list(
+    userName = rev_username,
+    password = rev_password
+  )
+  auth <- httr::authenticate(rev_username, rev_password, type = "basic")
+  
+  generate_auth_cookie <- httr::RETRY("POST",
+    url = paste0(base_url, auth_endpoint),
+    add_headers(.headers = headers),
+    body = jsonlite::toJSON(body, auto_unbox = TRUE),
+    auth,
     encode = "json",
     times = 4,
     pause_min = 10,
@@ -44,9 +49,5 @@ revenera_auth <- function(rev_username, rev_password) {
     pause_cap = 5
   )
 
-  check_status(revenera_login)
-
-  rev_session_id <- httr::content(revenera_login)$sessionId
-
-  return(rev_session_id)
+  check_status(generate_auth_cookie)
 }
