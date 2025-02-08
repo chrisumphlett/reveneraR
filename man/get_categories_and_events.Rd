@@ -4,16 +4,11 @@
 \alias{get_categories_and_events}
 \title{Get All Categories and Events for a List of Product Ids}
 \usage{
-get_categories_and_events(rev_product_ids, rev_session_id, rev_username)
+get_categories_and_events(rev_product_ids)
 }
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
-
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
 }
 \value{
 Data frame with categories, events and event type by product id.

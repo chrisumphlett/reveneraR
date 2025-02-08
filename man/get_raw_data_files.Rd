@@ -4,16 +4,14 @@
 \alias{get_raw_data_files}
 \title{Get Raw Data Files}
 \usage{
-get_raw_data_files(rev_product_ids, rev_session_id, rev_username)
+get_raw_data_files(rev_product_ids, days_back)
 }
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
 
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
+\item{days_back}{How many days back to go to generate download URLs. Limiting
+this, if not all files are needed, will significantly reduce execution time.}
 }
 \value{
 Data frame with available files and URLs.
