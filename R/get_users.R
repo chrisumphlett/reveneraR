@@ -65,8 +65,6 @@
 #'   "month",
 #'   start_date,
 #'   end_date,
-#'   session_id,
-#'   rev_user,
 #'   optional_json = global_filter
 #' )
 #' }
