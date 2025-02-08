@@ -24,14 +24,14 @@
 #' @param rev_start_date Date formatted YYYY-MM-DD. Revenera may give
 #' an error if you try to go back too far.
 #' @param rev_end_date Date formatted YYYY-MM-DD.
-#' @param rev_session_id Session ID established by the connection to
-#' Revenera API. This can be obtained with revenera_auth().
 #' @param rev_username Revenera username.
 #' @param lost_days Required for lost users, the number of consecutive
 #' days of inactivity before a client is considered lost.
 #' @param lost_reported Required for lost users, should the lost date
 #' be the first day of inactivity ("dateLastSeen") or date
 #' client is considered lost ("dateDeclaredLost").
+#' @param group_by Optional parameter, clientId by default, but can be changed
+#' to a different property that Revenera would use to group the data.
 #' @param optional_json Optional JSON text to add to the request body
 #' for things like global filters.
 #'
@@ -40,6 +40,8 @@
 #' @importFrom purrr "map_dfr"
 #' @import httr
 #' @import jsonlite
+#' @import tidyr
+#' @import tibble
 #'
 #' @return Data frame with active users for each product id and
 #' unique date within the range
@@ -69,34 +71,42 @@
 #' )
 #' }
 get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
-                      rev_end_date, rev_session_id, rev_username,
-                      lost_days = 30, lost_reported = "dateLastSeen",
-                      optional_json = "") {
+                      rev_end_date, rev_username,
+                      lost_days = 30, lost_reported = "dateLastSeen", group_by =
+                      "clientId", optional_json = "") {
   . <- NA # prevent variable binding note for the dot
+  
+  users_endpoint <- "reporting/generic/dateRange/"
 
   get_by_product <- function(x, rev_date_type) {
-    request_body <- paste0("{\"user\":\"", rev_username,
-      "\",\"sessionId\":\"",
-      rev_session_id,
-      "\",\"productId\":",
-      x,
-      ",\"startDate\":\"",
+    request_body <- paste0(
+      "{",
+      #"{\"user\":\"", rev_username,
+     # "\",\"sessionId\":\"",
+    #  rev_session_id,
+     # "\",\"productId\":",
+    #  x,
+      #",\"startDate\":\"",
+      "\"startDate\":\"",
       rev_start_date,
       "\",\"stopDate\":\"",
       rev_end_date,
+      "\",\"groupBy\":\"",
+      group_by,
       "\",\"daysUntilDeclaredLost\":",
       lost_days,
       ",\"dateReportedLost\":\"",
       lost_reported,
       "\",\"dateSplit\":\"",
       rev_date_type,
-      "\",\"startAtClientId\":",
-      jsonlite::toJSON(ifelse(
-        exists("content_json"), content_json$nextClientId,
-        NA_character_
-      ),
-      auto_unbox = TRUE
-      ),
+      "\"",
+      # "\",\"startAtClientId\":",
+      # jsonlite::toJSON(ifelse(
+      #   exists("content_json"), content_json$nextClientId,
+      #   NA_character_
+      # ),
+      # auto_unbox = TRUE
+      # ),
       paste0(
         ",\"clientStatus\":",
         jsonlite::toJSON(array(c(user_type)),
@@ -109,11 +119,8 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     )
 
     request <- httr::RETRY("POST",
-      url = paste0(
-        "https://api.revulytics.com/",
-        "reporting/generic/dateRange?",
-        "responseFormat=raw"
-      ),
+      url = paste0(base_url, users_endpoint, x),
+      add_headers(.headers = headers),
       body = request_body,
       encode = "json",
       times = 4,
@@ -129,13 +136,10 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
 
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
 
-    iteration_df <- as.data.frame(unlist(content_json$results)) %>%
+    iteration_df <- as.data.frame(unlist(content_json$result)) %>%
       cbind(rownames(.)) %>%
-      dplyr::rename(user_date = 2, users = 1) %>%
-      dplyr::mutate(
-        user_date = as.Date(substr(.data$user_date, 1, 10)),
-        revenera_product_id = x
-      )
+      tidyr::separate(`rownames(.)`, into = c("user_date", "user_type"), sep = "\\.") %>%
+      dplyr::rename(users = 1)
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }

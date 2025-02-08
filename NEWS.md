@@ -4,6 +4,8 @@
 * Authorization method changed to a cookie-based authentication and now the credentials are only needed for the initial authorization function. Credential parameters and session IDs are removed from all of the data-retrieving functions.
 * R version 4.4.1+ required as the new package was built with it and may not have been backwards compatible. Package dependencies also updated.
 * `get_raw_data_files()` has a new parameter, `days_back`, which allows users to specify how many days back they want to generate download URL's for raw data files. Retrieving the URL's significantly slowed down this function and can now be avoided if far less than 90 days is desired.
+* Added `group_by` parameter to `get_users()`.
+* Removed `get_active_users()`, and `get_new_users()`, as they are redundant with `get_users()`.
 
 # reveneraR 0.1.2.9999
 
