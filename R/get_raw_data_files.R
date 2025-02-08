@@ -50,7 +50,7 @@ get_raw_data_files <- function(rev_product_ids, days_back) {
   get_by_product <- function(x) {
     get_files_request <- httr::RETRY("GET",
       url = paste0(base_url, file_list_endpoint, x),
-      add_headers(.headers=headers),
+      add_headers(.headers = headers),
       encode = "json",
       times = 4,
       pause_min = 10,
