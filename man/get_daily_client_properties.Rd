@@ -6,8 +6,6 @@
 \usage{
 get_daily_client_properties(
   rev_product_ids,
-  rev_session_id,
-  rev_username,
   product_properties_df,
   desired_properties,
   installed_start_date,
@@ -19,11 +17,6 @@ get_daily_client_properties(
 }
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id.}
-
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
 
 \item{product_properties_df}{Data frame with available properties
 for all product ids. Can obtain with the get_product_properties function.}
@@ -77,15 +70,10 @@ product Ids.
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)
-product_properties <- get_product_properties(
-  product_ids_list,
-  session_id, rev_user
-)
+product_properties <- get_product_properties(product_ids_list)
 sink("output_filename.txt")
 sink(stdout(), type = "message")
 daily_client_properties <- get_daily_client_properties(product_ids_list,
-  session_id, rev_user,
   product_properties, c("Property1", "Property2"), start_date, end_date,
   daily_start_date = "01-01-2020", daily_end_date = "01-31-2020"
 )

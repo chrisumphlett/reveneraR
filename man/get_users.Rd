@@ -85,8 +85,6 @@ monthly_active_users <- get_users(product_ids_list,
   "month",
   start_date,
   end_date,
-  session_id,
-  rev_user,
   optional_json = global_filter
 )
 }

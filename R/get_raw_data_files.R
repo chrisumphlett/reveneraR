@@ -62,7 +62,7 @@ get_raw_data_files <- function(rev_product_ids, days_back) {
     files_list <- httr::content(get_files_request)$fileList
       
     files_df <- files_list %>%
-      map_df(~ tibble(fileName = .x$fileName, fileDate = .x$fileDate))
+      purrr::map_df(~ tibble(fileName = .x$fileName, fileDate = .x$fileDate))
     
     if(nrow(files_df) > 0) {
       files_vector <- files_df %>%
@@ -77,7 +77,7 @@ get_raw_data_files <- function(rev_product_ids, days_back) {
         download_request <- httr::RETRY("POST",
           url = paste0(base_url, download_endpoint, x),
           add_headers(.headers = headers),
-          body = toJSON(download_body, auto_unbox = TRUE),
+          body = jsonlite::toJSON(download_body, auto_unbox = TRUE),
           encode = "json",
           times = 4,
           pause_min = 10,
