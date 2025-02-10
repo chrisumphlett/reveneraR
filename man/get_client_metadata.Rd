@@ -65,7 +65,7 @@ rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 product_properties <- get_product_properties(product_ids_list)
-sink("output_filename.txt")
+sink("output_filename.txt") # write out chatty messages to a file
 sink(stdout(), type = "message")
 client_metadata <- get_client_metadata(
   product_ids_list, product_properties, c("Property1", "Property2"),

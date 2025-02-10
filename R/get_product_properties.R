@@ -12,8 +12,7 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
-#' @importFrom purrr "map_df"
+#' @import purrr
 #' @import httr
 #' @import jsonlite
 #'

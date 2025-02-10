@@ -37,10 +37,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr
+#' @import purrr
 #' @import httr
 #' @import jsonlite
-#' @importFrom tidyr
+#' @import tidyr
 #'
 #' @return Data frame with selected properties for each Client Id.
 #'

@@ -20,7 +20,7 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
+#' @import purrr
 #' @import httr
 #' @import jsonlite
 #'

@@ -43,10 +43,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr
+#' @import purrr
 #' @import httr
 #' @import jsonlite
-#' @importFrom tidyr
+#' @import tidyr
 #'
 #' @return Data frame with first date a property value appears until it changed
 #' for each Client Id.

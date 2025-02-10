@@ -37,11 +37,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
+#' @import purrr
 #' @import httr
 #' @import jsonlite
 #' @import tidyr
-#' @import tibble
 #'
 #' @return Data frame with active users for each product id and
 #' unique date within the range

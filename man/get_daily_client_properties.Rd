@@ -41,11 +41,16 @@ for every iteration through a product Id. Many API calls may be required
 and the console may get very long and it may slow down the execution.}
 }
 \value{
-Data frame with selected properties for each Client Id.
+Data frame with first date a property value appears until it changed
+for each Client Id.
 }
 \description{
 Returns the list of daily client properties for all the client Ids
-installed during a user provided date range for all the Product Ids.
+installed during a user provided date range for all the Product Ids. In
+order to decrease how much is returned only the first date for a property
+value is returned. For example, if Property A had value 1 for 3 days, then
+value 2 for 2 days, then value 1 again on day 6, it will return the day 1
+value of 1, day 4 value of 2, and day 6 value of 1.
 }
 \details{
 It is not recommended that your username be stored directly in your
@@ -71,11 +76,13 @@ rev_user <- "my_username"
 rev_pwd <- "super_secret"
 product_ids_list <- c("123", "456", "789")
 product_properties <- get_product_properties(product_ids_list)
-sink("output_filename.txt")
+sink("output_filename.txt") # write out chatty messages to a file
 sink(stdout(), type = "message")
 daily_client_properties <- get_daily_client_properties(product_ids_list,
-  product_properties, c("Property1", "Property2"), start_date, end_date,
-  daily_start_date = "01-01-2020", daily_end_date = "01-31-2020"
+  product_properties, c("Property1", "Property2"), 
+  installed_start_date = "01-01-2020", installed_end_date = "01-31-2020",
+  daily_start_date = "01-01-2020", daily_end_date = "01-31-2020",
+  chatty = TRUE
 )
 sink()
 }
