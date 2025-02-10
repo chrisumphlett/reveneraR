@@ -37,13 +37,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
-#' @importFrom purrr "map_dfc"
+#' @importFrom purrr
 #' @import httr
 #' @import jsonlite
-#' @importFrom tidyselect "all_of"
-#' @importFrom tidyr "pivot_longer"
-#' @importFrom tibble "tibble"
+#' @importFrom tidyr
 #'
 #' @return Data frame with selected properties for each Client Id.
 #'
@@ -55,7 +52,7 @@
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
 #' product_properties <- get_product_properties(product_ids_list)
-#' sink("output_filename.txt")
+#' sink("output_filename.txt") # write out chatty messages to a file
 #' sink(stdout(), type = "message")
 #' client_metadata <- get_client_metadata(
 #'   product_ids_list, product_properties, c("Property1", "Property2"),
@@ -68,20 +65,23 @@ get_client_metadata <- function(rev_product_ids,
                                 product_properties_df, desired_properties,
                                 installed_start_date, installed_end_date,
                                 chatty = FALSE) {
-  product_df_base <- tibble(
-    revenera_product_id = character(),
-    client_id = character(), property_friendly_name =
-      character(), property_value = character()
-  )
 
-  get_one_product_metadata <- function(product_iter) {
+  #if an object with this name exists in the session, 
+  #it will cause a problem further down
+  if (exists("content_json")) {
+    rm(content_json)
+  }  
+  
+  final_df <- data.frame()
+
+  get_one_product_metadata <- function(x) {
     if (chatty) {
-      message(paste0("Starting product id ", product_iter))
+      message(paste0("Starting product id ", x))
     }
 
     custom_property_names <- product_properties_df %>%
       filter(
-        revenera_product_id == product_iter,
+        revenera_product_id == x,
         property_friendly_name %in% desired_properties
       ) %>%
       select(property_name) %>%
@@ -141,50 +141,47 @@ get_client_metadata <- function(rev_product_ids,
 
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-      if (chatty) {
-        if (content_json$reachedEnd == "TRUE") {
-          message("reached end")
-        } else {
-          message(paste0("nextClientId = ", content_json$nextClientId))
+      # if there are not results for this product id, skip all of this
+      if (length(content_json$result) > 0){
+            if (chatty) {
+          if (content_json$reachedEnd == "TRUE") {
+            message("Reached end - no more clients")
+          } else {
+            message(paste0("nextClientId = ", content_json$nextClientId))
+          }
+        }
+  
+        build_data_frame <- function(c) {
+          properties <- as.data.frame(content_json$result[c])
+        }
+  
+        product_df <- purrr::map_dfc(
+          seq_len(length(content_json$result)),
+          build_data_frame
+        ) %>%
+          rename(client_id = clientId)
+        names(product_df)[2:length(content_json$result)] <-
+          c(desired_properties)
+        
+        # keep first date for each distinct property value
+        client_df <- product_df %>%
+          tidyr::pivot_longer(
+            cols = -c("client_id"),
+            names_to = "property_name",
+            values_to = "property_value"
+          ) %>%
+          filter(!is.na(property_value) & property_value != "<NULL>") %>%
+          mutate(revenera_product_id = as.character(x))
+        
+        final_df <- dplyr::bind_rows(final_df, client_df)
+      } else {
+        if (chatty) {
+          message("No results for this product id")
         }
       }
-
-      build_data_frame <- function(c) {
-        properties <- as.data.frame(content_json$result[c])
-      }
-
-      product_df <- purrr::map_dfc(
-        seq_len(length(content_json$result)),
-        build_data_frame
-      )
-      names(product_df)[2:length(content_json$result)] <-
-        c(desired_properties)
-      product_df2 <- product_df %>%
-        tidyr::pivot_longer(tidyselect::all_of(desired_properties),
-          names_to = "property_friendly_name",
-          values_to = "property_value"
-        ) %>%
-        mutate(
-          property_value = dplyr::if_else(property_value == "<NULL>" |
-            property_value == "",
-          NA_character_,
-          property_value
-          ),
-          revenera_product_id = product_iter
-        ) %>%
-        rename(client_id = clientId) %>%
-        select(
-          revenera_product_id, client_id,
-          property_friendly_name, property_value
-        ) %>%
-        filter(!is.na(property_value))
-
-      product_df_base <- dplyr::bind_rows(product_df2, product_df_base)
-
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
     }
-
-    return(product_df_base)
+    return(final_df)
   }
 
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_metadata)

@@ -197,7 +197,7 @@ get_daily_client_properties <- function(rev_product_ids,
         
         final_df <- dplyr::bind_rows(final_df, client_df) %>%
           dplyr::mutate(revenera_product_id = x) %>%
-          filter(!is.na(property_value))
+          filter(!is.na(property_value) & property_value != "<NULL>")
         
       } else {
         if (chatty) {
