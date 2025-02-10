@@ -1,7 +1,11 @@
 #' Get Daily Property Values for All Clients for a List of Product Ids
 #'
 #' Returns the list of daily client properties for all the client Ids
-#' installed during a user provided date range for all the Product Ids.
+#' installed during a user provided date range for all the Product Ids. In
+#' order to decrease how much is returned only the first date for a property
+#' value is returned. For example, if Property A had value 1 for 3 days, then
+#' value 2 for 2 days, then value 1 again on day 6, it will return the day 1
+#' value of 1, day 4 value of 2, and day 6 value of 1.
 #'
 #' It is not recommended that your username be stored directly in your
 #' code. There are various methods and packages available that are more
@@ -39,15 +43,13 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
-#' @importFrom purrr "map_dfc"
+#' @importFrom purrr
 #' @import httr
 #' @import jsonlite
-#' @importFrom tidyselect "all_of"
-#' @importFrom tidyr "pivot_longer"
-#' @importFrom tibble "tibble"
+#' @importFrom tidyr
 #'
-#' @return Data frame with selected properties for each Client Id.
+#' @return Data frame with first date a property value appears until it changed
+#' for each Client Id.
 #'
 #' @export
 #'
@@ -57,11 +59,13 @@
 #' rev_pwd <- "super_secret"
 #' product_ids_list <- c("123", "456", "789")
 #' product_properties <- get_product_properties(product_ids_list)
-#' sink("output_filename.txt")
+#' sink("output_filename.txt") # write out chatty messages to a file
 #' sink(stdout(), type = "message")
 #' daily_client_properties <- get_daily_client_properties(product_ids_list,
-#'   product_properties, c("Property1", "Property2"), start_date, end_date,
-#'   daily_start_date = "01-01-2020", daily_end_date = "01-31-2020"
+#'   product_properties, c("Property1", "Property2"), 
+#'   installed_start_date = "01-01-2020", installed_end_date = "01-31-2020",
+#'   daily_start_date = "01-01-2020", daily_end_date = "01-31-2020",
+#'   chatty = TRUE
 #' )
 #' sink()
 #' }
@@ -80,7 +84,7 @@ get_daily_client_properties <- function(rev_product_ids,
     rm(content_json)
   }
 
-  trialpurchase_df <- data.frame()
+  final_df <- data.frame()
   get_one_product_metadata <- function(x) {
     if (chatty) {
       message(paste0("Starting product id ", x))
@@ -166,57 +170,34 @@ get_daily_client_properties <- function(rev_product_ids,
           properties <- as.data.frame(content_json$result[c])
         }
         
+        # build the data frame from json and unnest the daily property data
         product_df <- purrr::map_dfc(
           seq_len(length(content_json$result)),
           build_data_frame
-        )
-        colnames(product_df)[1] <- "client_id"
-        daily_propertytype <- product_df$dailyData
-        
-        daily_propertytype_flat <- bind_rows(daily_propertytype,
-                                             .id = "column_label"
         ) %>%
-          mutate(
-            id = as.numeric(column_label),
-            property_date = as.Date(date)
-          ) %>%
-          select(-column_label, -date)
-
-        names(daily_propertytype_flat)[seq_len(
-          length(desired_properties))
+          tidyr::unnest(c("dailyData")) %>%
+          dplyr::rename(client_id = clientId, property_date = date)
+        
+        # rename the property columns, using the friendly names
+        names(product_df)[seq_len(
+          length(desired_properties)) + 2
         ] <-
           c(desired_properties)
-        message("got here4")
-        suppressMessages(
-          client_df <- purrr::map_dfc(
-            seq_len(nrow(product_df)),
-            ~ (nrow(product_df[[3]][[.x]]))
-          ) %>%
-            tidyr::pivot_longer(everything(), names_to = "a", values_to = "b") %>%
-            cbind(product_df) %>%
-            dplyr::filter(b != 0) %>%
-            dplyr::select(3) %>%
-            dplyr::mutate(id = row_number())
-        )
-        message("got here5")
-        client_df_merged <- merge(
-          x = daily_propertytype_flat, y = client_df,
-          by = "id", all.x = TRUE
-        ) %>%
+ 
+        # keep first date for each distinct property value
+        client_df <- product_df %>%
           tidyr::pivot_longer(
-            cols = -c("id", "property_date", "client_id"),
+            cols = -c("property_date", "client_id"),
             names_to = "property_name",
             values_to = "property_value"
-          ) %>%
-          select(-id)
-        message("got here6")
-        final_df <- client_df_merged %>%
+          )  %>%
           dplyr::group_by(client_id, property_value) %>%
           dplyr::slice(which.min(as.Date(property_date, "%Y-%m-%d"))) %>%
           dplyr::ungroup()
         
-        trialpurchase_df <- dplyr::bind_rows(final_df, trialpurchase_df) %>%
-          dplyr::mutate(revenera_product_id = product_iter)
+        final_df <- dplyr::bind_rows(final_df, client_df) %>%
+          dplyr::mutate(revenera_product_id = x) %>%
+          filter(!is.na(property_value))
         
       } else {
         if (chatty) {
@@ -227,7 +208,7 @@ get_daily_client_properties <- function(rev_product_ids,
       keep_going <- ifelse(content_json$reachedEnd == "FALSE", TRUE, FALSE)
     }
 
-    return(trialpurchase_df)
+    return(final_df)
   }
 
   all_products_df <- purrr::map_dfr(rev_product_ids, get_one_product_metadata)
