@@ -24,7 +24,6 @@
 #' @param rev_start_date Date formatted YYYY-MM-DD. Revenera may give
 #' an error if you try to go back too far.
 #' @param rev_end_date Date formatted YYYY-MM-DD.
-#' @param rev_username Revenera username.
 #' @param lost_days Required for lost users, the number of consecutive
 #' days of inactivity before a client is considered lost.
 #' @param lost_reported Required for lost users, should the lost date
@@ -68,7 +67,7 @@
 #' )
 #' }
 get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
-                      rev_end_date, rev_username,
+                      rev_end_date, 
                       lost_days = 30, lost_reported = "dateLastSeen", group_by =
                       "clientId", optional_json = "") {
   . <- NA # prevent variable binding note for the dot
@@ -136,7 +135,8 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     iteration_df <- as.data.frame(unlist(content_json$result)) %>%
       cbind(rownames(.)) %>%
       tidyr::separate(`rownames(.)`, into = c("user_date", "user_type"), sep = "\\.") %>%
-      dplyr::rename(users = 1)
+      dplyr::rename(users = 1) %>%
+      mutate(revenera_product_id = x)
     rownames(iteration_df) <- NULL
     return(iteration_df)
   }
