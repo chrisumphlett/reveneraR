@@ -37,10 +37,11 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @import purrr
+#' @importFrom purrr map_dfc map_dfr
 #' @import httr
 #' @import jsonlite
 #' @import tidyr
+#' @importFrom rlang .data
 #'
 #' @return Data frame with selected properties for each Client Id.
 #'
@@ -50,6 +51,9 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
 #' product_properties <- get_product_properties(product_ids_list)
 #' sink("output_filename.txt") # write out chatty messages to a file
@@ -81,10 +85,10 @@ get_client_metadata <- function(rev_product_ids,
 
     custom_property_names <- product_properties_df %>%
       filter(
-        revenera_product_id == x,
-        property_friendly_name %in% desired_properties
+        .data$revenera_product_id == x,
+        .data$property_friendly_name %in% desired_properties
       ) %>%
-      select(property_name) %>%
+      select(.data$property_name) %>%
       pull()
 
     i <- 0
@@ -144,12 +148,12 @@ get_client_metadata <- function(rev_product_ids,
       # if there are not results for this product id, skip all of this
       if (length(content_json$result) > 0){
             if (chatty) {
-          if (content_json$reachedEnd == "TRUE") {
-            message("Reached end - no more clients")
-          } else {
-            message(paste0("nextClientId = ", content_json$nextClientId))
-          }
-        }
+              if (content_json$reachedEnd == "TRUE") {
+                message("Reached end - no more clients")
+              } else {
+                message(paste0("nextClientId = ", content_json$nextClientId))
+              }
+            }
   
         build_data_frame <- function(c) {
           properties <- as.data.frame(content_json$result[c])
@@ -159,9 +163,12 @@ get_client_metadata <- function(rev_product_ids,
           seq_len(length(content_json$result)),
           build_data_frame
         ) %>%
-          rename(client_id = clientId)
-        names(product_df)[2:length(content_json$result)] <-
-          c(desired_properties)
+          rename(client_id = .data$clientId)
+        
+        # product_df <- select(product_df,1:4)
+        # 
+        # names(product_df)[2:length(content_json$result)] <-
+        #   c(desired_properties)
         
         # keep first date for each distinct property value
         client_df <- product_df %>%
@@ -170,8 +177,16 @@ get_client_metadata <- function(rev_product_ids,
             names_to = "property_name",
             values_to = "property_value"
           ) %>%
-          filter(!is.na(property_value) & property_value != "<NULL>") %>%
-          mutate(revenera_product_id = as.character(x))
+          filter(!is.na(.data$property_value) & 
+                   .data$property_value != "<NULL>") %>%
+          mutate(revenera_product_id = x) %>%
+          left_join(
+            product_properties_df,
+            by = c("property_name", "revenera_product_id")
+          ) %>%
+          select(.data$client_id, .data$property_friendly_name, 
+                 .data$property_value, .data$revenera_product_id) %>%
+          rename(property_name = .data$property_friendly_name)
         
         final_df <- dplyr::bind_rows(final_df, client_df)
       } else {
