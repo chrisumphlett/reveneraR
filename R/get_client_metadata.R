@@ -139,9 +139,7 @@ get_client_metadata <- function(rev_product_ids,
                              pause_cap = 5
       )
 
-      # nolint start
       check_status(request)
-      # nolint end
 
       request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
       content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
@@ -164,11 +162,6 @@ get_client_metadata <- function(rev_product_ids,
           build_data_frame
         ) %>%
           rename(client_id = .data$clientId)
-        
-        # product_df <- select(product_df,1:4)
-        # 
-        # names(product_df)[2:length(content_json$result)] <-
-        #   c(desired_properties)
         
         # keep first date for each distinct property value
         client_df <- product_df %>%

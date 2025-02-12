@@ -81,12 +81,6 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
   get_by_product <- function(x, rev_date_type) {
     request_body <- paste0(
       "{",
-      #"{\"user\":\"", rev_username,
-     # "\",\"sessionId\":\"",
-    #  rev_session_id,
-     # "\",\"productId\":",
-    #  x,
-      #",\"startDate\":\"",
       "\"startDate\":\"",
       rev_start_date,
       "\",\"stopDate\":\"",
@@ -137,8 +131,8 @@ get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
 
     iteration_df <- as.data.frame(unlist(content_json$result)) %>%
-      cbind(rownames(.)) %>%
-      tidyr::separate(`rownames(.)`, into = c("user_date", "user_type"), sep = "\\.") %>%
+      cbind(rownames(.data)) %>%
+      tidyr::separate(`rownames(.data)`, into = c("user_date", "user_type"), sep = "\\.") %>%
       dplyr::rename(users = 1) %>%
       mutate(revenera_product_id = x)
     rownames(iteration_df) <- NULL

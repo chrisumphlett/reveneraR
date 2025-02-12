@@ -61,3 +61,5 @@ headers <- c(
   "RUI-Client-Version" = "0.0.1",
   "Origin" = "https://analytics.revenera.com"
 )
+
+utils::globalVariables(c("content_json", "rownames(.data)"))
