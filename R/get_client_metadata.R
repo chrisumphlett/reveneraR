@@ -179,7 +179,7 @@ get_client_metadata <- function(rev_product_ids,
           ) %>%
           filter(!is.na(.data$property_value) & 
                    .data$property_value != "<NULL>") %>%
-          mutate(revenera_product_id = x) %>%
+          mutate(revenera_product_id = as.character(x)) %>%
           left_join(
             product_properties_df,
             by = c("property_name", "revenera_product_id")

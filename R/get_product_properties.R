@@ -64,7 +64,7 @@ get_product_properties <- function(rev_product_ids) {
         cbind(properties_category) %>%
         dplyr::mutate(
           properties_category = as.character(.data$properties_category),
-          revenera_product_id = x,
+          revenera_product_id = as.character(x),
           property_name = as.character(.data$name),
           property_friendly_name = as.character(.data$friendlyName),
           filter_type = as.character(.data$filterType),
