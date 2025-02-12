@@ -36,10 +36,11 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @import purrr
+#' @importFrom purrr map_dfr
 #' @import httr
 #' @import jsonlite
 #' @import tidyr
+#' @importFrom rlang .data
 #'
 #' @return Data frame with active users for each product id and
 #' unique date within the range
@@ -50,10 +51,12 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
 #' start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 #' end_date <- Sys.Date() - 1
-#' session_id <- revenera_auth(rev_user, rev_pwd)
 #' global_filter <- paste0(
 #'   ",\"globalFilters\":{\"licenseType\":",
 #'   "{\"type\":\"string\",\"value\":\"purchased\"}}"
@@ -66,9 +69,10 @@
 #'   optional_json = global_filter
 #' )
 #' }
+
 get_users <- function(rev_product_ids, user_type, rev_date_type, rev_start_date,
-                      rev_end_date, 
-                      lost_days = 30, lost_reported = "dateLastSeen", group_by =
+                      rev_end_date, lost_days = 30, 
+                      lost_reported = "dateLastSeen", group_by =
                       "clientId", optional_json = "") {
   . <- NA # prevent variable binding note for the dot
   

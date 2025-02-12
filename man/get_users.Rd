@@ -10,7 +10,6 @@ get_users(
   rev_date_type,
   rev_start_date,
   rev_end_date,
-  rev_username,
   lost_days = 30,
   lost_reported = "dateLastSeen",
   group_by = "clientId",
@@ -30,8 +29,6 @@ you want active user data.}
 an error if you try to go back too far.}
 
 \item{rev_end_date}{Date formatted YYYY-MM-DD.}
-
-\item{rev_username}{Revenera username.}
 
 \item{lost_days}{Required for lost users, the number of consecutive
 days of inactivity before a client is considered lost.}
@@ -72,10 +69,12 @@ the API documentation. See README for an example.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revenera_auth(rev_user, rev_pwd)
 global_filter <- paste0(
   ",\"globalFilters\":{\"licenseType\":",
   "{\"type\":\"string\",\"value\":\"purchased\"}}"

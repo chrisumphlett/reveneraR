@@ -29,7 +29,9 @@ you to use any one in particular.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
-authorize <- revenera_auth(rev_user, rev_pwd)
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 }
 
 }

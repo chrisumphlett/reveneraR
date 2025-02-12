@@ -21,7 +21,8 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
-#' authorize <- revenera_auth(rev_user, rev_pwd)
+#' revenera_auth(rev_user, rev_pwd)
+#' logout(rev_user, rev_pwd)
 #' }
 #'
 logout <- function(rev_username, rev_password) {

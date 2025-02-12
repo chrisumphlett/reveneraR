@@ -12,9 +12,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @import purrr
+#' @importFrom purrr map_dfr
 #' @import httr
 #' @import jsonlite
+#' @importFrom rlang .data
 #'
 #' @return Data frame with categories, events and event type by product id.
 #'
@@ -24,11 +25,13 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revenera_auth(rev_user, rev_pwd)
 #' category_event <- get_categories_and_events(
-#'   product_ids_list, session_id,
-#'   rev_user
+#'   product_ids_list
 #' )
 #' }
 #'
@@ -61,7 +64,7 @@ get_categories_and_events <- function(rev_product_ids) {
         content_json$result$categoryEventNames[x]
       ) %>%
         cbind(category_name) %>%
-        dplyr::mutate(category_name = as.character(category_name))
+        dplyr::mutate(category_name = as.character(.data$category_name))
     }
 
     category_event <- purrr::map_dfr(seq_len(
@@ -73,14 +76,14 @@ get_categories_and_events <- function(rev_product_ids) {
           basic ~ "BASIC",
           TRUE ~ "INACTIVE"
         ),
-        date_first_seen = as.Date(dateFirstSeen),
+        date_first_seen = as.Date(.data$dateFirstSeen),
         revenera_product_id = x
       ) %>%
       dplyr::select(
-        revenera_product_id, category_name, eventName,
-        event_type, date_first_seen
+        .data$revenera_product_id, .data$category_name, .data$eventName,
+        .data$event_type, .data$date_first_seen
       ) %>%
-      dplyr::rename(event_name = eventName)
+      dplyr::rename(event_name = .data$eventName)
   }
 
   category_event_by_prod <- purrr::map_dfr(rev_product_ids, get_by_product)

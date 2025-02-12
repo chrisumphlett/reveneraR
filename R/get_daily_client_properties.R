@@ -43,10 +43,11 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @import purrr
+#' @importFrom purrr map_dfr map_dfc
 #' @import httr
 #' @import jsonlite
 #' @import tidyr
+#' @importFrom rlang .data
 #'
 #' @return Data frame with first date a property value appears until it changed
 #' for each Client Id.
@@ -57,6 +58,9 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
 #' product_properties <- get_product_properties(product_ids_list)
 #' sink("output_filename.txt") # write out chatty messages to a file
@@ -92,10 +96,10 @@ get_daily_client_properties <- function(rev_product_ids,
 
     custom_property_names <- product_properties_df %>%
       filter(
-        revenera_product_id == x,
-        property_friendly_name %in% desired_properties
+        .data$revenera_product_id == x,
+        .data$property_friendly_name %in% desired_properties
       ) %>%
-      select(property_name) %>%
+      select(.data$property_name) %>%
       pull()
 
     i <- 0
@@ -176,13 +180,7 @@ get_daily_client_properties <- function(rev_product_ids,
           build_data_frame
         ) %>%
           tidyr::unnest(c("dailyData")) %>%
-          dplyr::rename(client_id = clientId, property_date = date)
-        
-        # rename the property columns, using the friendly names
-        names(product_df)[seq_len(
-          length(desired_properties)) + 2
-        ] <-
-          c(desired_properties)
+          dplyr::rename(client_id = .data$clientId, property_date = .data$date)
  
         # keep first date for each distinct property value
         client_df <- product_df %>%
@@ -191,13 +189,14 @@ get_daily_client_properties <- function(rev_product_ids,
             names_to = "property_name",
             values_to = "property_value"
           )  %>%
-          dplyr::group_by(client_id, property_value) %>%
-          dplyr::slice(which.min(as.Date(property_date, "%Y-%m-%d"))) %>%
+          dplyr::group_by(.data$client_id, .data$property_value) %>%
+          dplyr::slice(which.min(as.Date(.data$property_date, "%Y-%m-%d"))) %>%
           dplyr::ungroup()
         
         final_df <- dplyr::bind_rows(final_df, client_df) %>%
           dplyr::mutate(revenera_product_id = x) %>%
-          filter(!is.na(property_value) & property_value != "<NULL>")
+          filter(!is.na(.data$property_value) 
+                 & .data$property_value != "<NULL>")
         
       } else {
         if (chatty) {

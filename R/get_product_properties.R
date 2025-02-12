@@ -12,9 +12,10 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @import purrr
+#' @importFrom purrr map_dfr map_df
 #' @import httr
 #' @import jsonlite
+#' @importFrom rlang .data
 #'
 #' @return Data frame with properties and property attributes by
 #' product id.
@@ -25,8 +26,10 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revenera_auth(rev_user, rev_pwd)
 #' product_properties <- get_product_properties(product_ids_list)
 #' }
 #'
@@ -60,31 +63,31 @@ get_product_properties <- function(rev_product_ids) {
       properties <- as.data.frame(content_json$result$properties[y]) %>%
         cbind(properties_category) %>%
         dplyr::mutate(
-          properties_category = as.character(properties_category),
+          properties_category = as.character(.data$properties_category),
           revenera_product_id = x,
-          property_name = as.character(name),
-          property_friendly_name = as.character(friendlyName),
-          filter_type = as.character(filterType),
-          data_type = as.character(dataType),
-          supports_regex_f = as.character(if_else(supportsRegex,
+          property_name = as.character(.data$name),
+          property_friendly_name = as.character(.data$friendlyName),
+          filter_type = as.character(.data$filterType),
+          data_type = as.character(.data$dataType),
+          supports_regex_f = as.character(if_else(.data$supportsRegex,
             1, 0
           )),
-          supports_meta_f = as.character(if_else(supportsMeta,
+          supports_meta_f = as.character(if_else(.data$supportsMeta,
             1, 0
           )),
-          supports_null_f = as.character(if_else(supportsNull,
+          supports_null_f = as.character(if_else(.data$supportsNull,
             1, 0
           ))
         ) %>%
         dplyr::select(
-          revenera_product_id, properties_category,
-          property_name, property_friendly_name,
-          filter_type, data_type, supports_regex_f,
-          supports_meta_f, supports_null_f
+          .data$revenera_product_id, .data$properties_category,
+          .data$property_name, .data$property_friendly_name,
+          .data$filter_type, .data$data_type, .data$supports_regex_f,
+          .data$supports_meta_f, .data$supports_null_f
         )
     }
 
-    product_df <- map_df(
+    product_df <- purrr::map_df(
       seq_len(length(content_json$result$category)),
       build_data_frame
     )
