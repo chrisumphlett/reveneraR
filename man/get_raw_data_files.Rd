@@ -4,16 +4,14 @@
 \alias{get_raw_data_files}
 \title{Get Raw Data Files}
 \usage{
-get_raw_data_files(rev_product_ids, rev_session_id, rev_username)
+get_raw_data_files(rev_product_ids, days_back)
 }
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
 
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
+\item{days_back}{How many days back to go to generate download URLs. Limiting
+this, if not all files are needed, will significantly reduce execution time.}
 }
 \value{
 Data frame with available files and URLs.
@@ -37,14 +35,19 @@ secure; this package does not require you to use any one in particular.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)
-files_df <- get_raw_data_files(product_ids_list, session_id, rev_user)
+urls_df <- get_raw_data_files(product_ids_list, days_back = 3)
+urls <- urls_df \%>\% pull(download_url)
+file_names <-  urls_df \%>\%   pull(file_name)
 file_list <- dplyr::pull(files_df, var = file_name)
-for (f in file_list) {
-  url <- dplyr::filter(files_df, file_name == f) \%>\%
-    dplyr::pull(download_url)
-  download.file(url, mode = "wb", destfile = "download_file_location.zip")
+dl_and_write <- function(u, f) {
+  download.file(u, mode = "wb", destfile = f)
+  upload_blob(cont, src = f, dest = paste0("/zip/", f))
+  file.remove(f)
 }
+purrr::map2(urls, file_names, purrr::possibly(dl_and_write, "Download Error"))
 }
 }

@@ -11,7 +11,7 @@
 #' @keywords internal
 
 check_status <- function(request_obj) {
-  if (request_obj$status_code != 200) {
+  if (!request_obj$status_code %in% c(200, 204)) {
     if (request_obj$status_code >= 500) {
       message(paste0(
         "There was an error on the server and the request could
@@ -53,3 +53,13 @@ stop_quietly <- function() {
   on.exit(options(opt))
   stop()
 }
+
+base_url <- "https://analytics-api.revenera.com/v3/"
+headers <- c(
+  "Content-Type" = "application/json",
+  "RUI-Client" = "Postman",
+  "RUI-Client-Version" = "0.0.1",
+  "Origin" = "https://analytics.revenera.com"
+)
+
+utils::globalVariables(c("content_json", "rownames(.data)"))

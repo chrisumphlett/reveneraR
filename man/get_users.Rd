@@ -10,10 +10,9 @@ get_users(
   rev_date_type,
   rev_start_date,
   rev_end_date,
-  rev_session_id,
-  rev_username,
   lost_days = 30,
   lost_reported = "dateLastSeen",
+  group_by = "clientId",
   optional_json = ""
 )
 }
@@ -31,17 +30,15 @@ an error if you try to go back too far.}
 
 \item{rev_end_date}{Date formatted YYYY-MM-DD.}
 
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
-
 \item{lost_days}{Required for lost users, the number of consecutive
 days of inactivity before a client is considered lost.}
 
 \item{lost_reported}{Required for lost users, should the lost date
 be the first day of inactivity ("dateLastSeen") or date
 client is considered lost ("dateDeclaredLost").}
+
+\item{group_by}{Optional parameter, clientId by default, but can be changed
+to a different property that Revenera would use to group the data.}
 
 \item{optional_json}{Optional JSON text to add to the request body
 for things like global filters.}
@@ -72,10 +69,12 @@ the API documentation. See README for an example.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 product_ids_list <- c("123", "456", "789")
 start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
 end_date <- Sys.Date() - 1
-session_id <- revenera_auth(rev_user, rev_pwd)
 global_filter <- paste0(
   ",\"globalFilters\":{\"licenseType\":",
   "{\"type\":\"string\",\"value\":\"purchased\"}}"
@@ -85,8 +84,6 @@ monthly_active_users <- get_users(product_ids_list,
   "month",
   start_date,
   end_date,
-  session_id,
-  rev_user,
   optional_json = global_filter
 )
 }

@@ -4,16 +4,11 @@
 \alias{get_product_properties}
 \title{Get All Properties for a List of Product Ids}
 \usage{
-get_product_properties(rev_product_ids, rev_session_id, rev_username)
+get_product_properties(rev_product_ids)
 }
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
-
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
 }
 \value{
 Data frame with properties and property attributes by
@@ -32,12 +27,11 @@ secure; this package does not require you to use any one in particular.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)
-product_properties <- get_product_properties(
-  product_ids_list,
-  session_id, rev_user
-)
+product_properties <- get_product_properties(product_ids_list)
 }
 
 }

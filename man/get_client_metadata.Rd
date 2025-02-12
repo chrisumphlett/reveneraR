@@ -6,8 +6,6 @@
 \usage{
 get_client_metadata(
   rev_product_ids,
-  rev_session_id,
-  rev_username,
   product_properties_df,
   desired_properties,
   installed_start_date,
@@ -18,11 +16,6 @@ get_client_metadata(
 \arguments{
 \item{rev_product_ids}{A vector of Revenera product id's for which
 you want active user data.}
-
-\item{rev_session_id}{Session ID established by the connection to
-Revenera API. This can be obtained with revenera_auth().}
-
-\item{rev_username}{Revenera username.}
 
 \item{product_properties_df}{Data frame with available properties
 for all product ids. Can obtain with the get_product_properties function.}
@@ -70,18 +63,16 @@ product Ids.
 \dontrun{
 rev_user <- "my_username"
 rev_pwd <- "super_secret"
+logout(rev_user, rev_pwd)
+Sys.sleep(30)
+revenera_auth(rev_user, rev_pwd)
 product_ids_list <- c("123", "456", "789")
-session_id <- revenera_auth(rev_user, rev_pwd)
-product_properties <- get_product_properties(
-  product_ids_list, session_id,
-  rev_user
-)
-sink("output_filename.txt")
+product_properties <- get_product_properties(product_ids_list)
+sink("output_filename.txt") # write out chatty messages to a file
 sink(stdout(), type = "message")
 client_metadata <- get_client_metadata(
-  product_ids_list, session_id,
-  rev_user, product_properties, c("Property1", "Property2"),
-  start_date, end_date
+  product_ids_list, product_properties, c("Property1", "Property2"),
+  start_date, end_date, chatty = TRUE
 )
 sink()
 }

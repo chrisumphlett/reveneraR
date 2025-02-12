@@ -9,15 +9,13 @@
 #'
 #' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
-#' @param rev_session_id Session ID established by the connection to
-#' Revenera API. This can be obtained with revenera_auth().
-#' @param rev_username Revenera username.
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
+#' @importFrom purrr map_dfr
 #' @import httr
 #' @import jsonlite
+#' @importFrom rlang .data
 #'
 #' @return Data frame with categories, events and event type by product id.
 #'
@@ -27,31 +25,26 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
 #' session_id <- revenera_auth(rev_user, rev_pwd)
 #' category_event <- get_categories_and_events(
-#'   product_ids_list, session_id,
-#'   rev_user
+#'   product_ids_list
 #' )
 #' }
 #'
-get_categories_and_events <- function(rev_product_ids, rev_session_id,
-                                      rev_username) {
-  get_by_product <- function(x) {
-    request_body <- list(
-      user = rev_username,
-      sessionId = rev_session_id,
-      productId = x,
-      showEvents = array("all")
-    )
+get_categories_and_events <- function(rev_product_ids) {
+  
+  list_events_endpoint <- "event-tracking/"
 
-    body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
-    request <- httr::RETRY("POST",
-      url = paste0(
-        "https://api.revulytics.com/",
-        "eventTracking/listEventNames"
-      ),
-      body = body,
+  get_by_product <- function(x) {
+
+    # body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
+    request <- httr::RETRY("GET",
+      url = paste0(base_url, list_events_endpoint, x),
+      add_headers(.headers = headers),
       encode = "json",
       times = 4,
       pause_min = 10,
@@ -64,33 +57,33 @@ get_categories_and_events <- function(rev_product_ids, rev_session_id,
 
     request_content <- httr::content(request, "text", encoding = "ISO-8859-1")
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
-
+    
     parse_json_into_df <- function(x) {
-      category_name <- content_json$results$category[x]
+      category_name <- content_json$result$category[x]
       event_name <- as.data.frame(
-        content_json$results$categoryEventNames[x]
+        content_json$result$categoryEventNames[x]
       ) %>%
         cbind(category_name) %>%
-        mutate(category_name = as.character(.data$category_name))
+        dplyr::mutate(category_name = as.character(.data$category_name))
     }
 
     category_event <- purrr::map_dfr(seq_len(
-      length(content_json$results$category)
+      length(content_json$result$category)
     ), parse_json_into_df) %>%
-      mutate(
+      dplyr::mutate(
         event_type = case_when(
-          .data$advanced ~ "ADVANCED",
-          .data$basic ~ "BASIC",
+          advanced ~ "ADVANCED",
+          basic ~ "BASIC",
           TRUE ~ "INACTIVE"
         ),
         date_first_seen = as.Date(.data$dateFirstSeen),
         revenera_product_id = x
       ) %>%
-      select(
+      dplyr::select(
         .data$revenera_product_id, .data$category_name, .data$eventName,
         .data$event_type, .data$date_first_seen
       ) %>%
-      rename(event_name = .data$eventName)
+      dplyr::rename(event_name = .data$eventName)
   }
 
   category_event_by_prod <- purrr::map_dfr(rev_product_ids, get_by_product)

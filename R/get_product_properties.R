@@ -9,16 +9,13 @@
 #'
 #' @param rev_product_ids A vector of Revenera product id's for which
 #' you want active user data.
-#' @param rev_session_id Session ID established by the connection to
-#' Revenera API. This can be obtained with revenera_auth().
-#' @param rev_username Revenera username.
 #'
 #' @import dplyr
 #' @importFrom magrittr "%>%"
-#' @importFrom purrr "map_dfr"
-#' @importFrom purrr "map_df"
+#' @importFrom purrr map_dfr map_df
 #' @import httr
 #' @import jsonlite
+#' @importFrom rlang .data
 #'
 #' @return Data frame with properties and property attributes by
 #' product id.
@@ -29,30 +26,23 @@
 #' \dontrun{
 #' rev_user <- "my_username"
 #' rev_pwd <- "super_secret"
+#' logout(rev_user, rev_pwd)
+#' Sys.sleep(30)
+#' revenera_auth(rev_user, rev_pwd)
 #' product_ids_list <- c("123", "456", "789")
-#' session_id <- revenera_auth(rev_user, rev_pwd)
-#' product_properties <- get_product_properties(
-#'   product_ids_list,
-#'   session_id, rev_user
-#' )
+#' product_properties <- get_product_properties(product_ids_list)
 #' }
 #'
-get_product_properties <- function(rev_product_ids, rev_session_id,
-                                   rev_username) {
+get_product_properties <- function(rev_product_ids) {
+  
+  product_properties_endpoint <- "meta/productProperties/"
+  
   get_one_product_properties <- function(x) {
-    request_body <- list(
-      user = rev_username,
-      sessionId = rev_session_id,
-      productId = x
-    )
 
-    body <- jsonlite::toJSON(request_body, auto_unbox = TRUE)
-    request <- httr::RETRY("POST",
-      url = paste0(
-        "https://api.revulytics.com/",
-        "meta/productProperties"
-      ),
-      body = body,
+    request <- httr::RETRY("GET",
+      url = paste0(base_url, product_properties_endpoint, x),
+      add_headers(.headers = headers),
+      # body = body,
       encode = "json",
       times = 4,
       pause_min = 10,
@@ -69,12 +59,12 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
     content_json <- jsonlite::fromJSON(request_content, flatten = TRUE)
 
     build_data_frame <- function(y) {
-      properties_category <- content_json$results$category[y]
-      properties <- as.data.frame(content_json$results$properties[y]) %>%
+      properties_category <- content_json$result$category[y]
+      properties <- as.data.frame(content_json$result$properties[y]) %>%
         cbind(properties_category) %>%
-        mutate(
+        dplyr::mutate(
           properties_category = as.character(.data$properties_category),
-          revenera_product_id = x,
+          revenera_product_id = as.character(x),
           property_name = as.character(.data$name),
           property_friendly_name = as.character(.data$friendlyName),
           filter_type = as.character(.data$filterType),
@@ -89,7 +79,7 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
             1, 0
           ))
         ) %>%
-        select(
+        dplyr::select(
           .data$revenera_product_id, .data$properties_category,
           .data$property_name, .data$property_friendly_name,
           .data$filter_type, .data$data_type, .data$supports_regex_f,
@@ -97,8 +87,8 @@ get_product_properties <- function(rev_product_ids, rev_session_id,
         )
     }
 
-    product_df <- map_df(
-      seq_len(length(content_json$results$category)),
+    product_df <- purrr::map_df(
+      seq_len(length(content_json$result$category)),
       build_data_frame
     )
   }
