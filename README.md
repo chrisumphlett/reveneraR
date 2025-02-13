@@ -16,7 +16,9 @@ The development version can be installed from GitHub: `devtools::install_github(
 
 ## Usage
 
-A session must first be established before querying the API. This is done using your Revenera username and password with `revultyics_auth()`.
+Version 1.0.0 made breaking changes in order to switch to v3 of the Revenera API. The information below is accurate for versions prior to that.
+
+Authorization is done with `revenera_auth()`, using a cookie. This is done using your Revenera username and password. This periodically will need to be updated, I recommend you `logout()` first, then re-authenticate.
 
 * `get_users()`. For a given period of time (a day, week, or month) Revenera's API summarizes and returns the number of new, active or lost users. With this function you can return daily, weekly, or monthly users for multiple product ids. For lost users the number of days of inactivity to be counted lost is set at 30 by default (but you can change), and the last date of activity is the lost date (you can choose it to be the last date plus the number of days of inactivity, the date it is considered lost).
 * `get_categories_and_events()`. For a list of product ids get all of the categories and events that have been defined (and identify it each is a basic or advanced). This can then be passed into subsequent queries to pull data on multiple events.
@@ -25,19 +27,5 @@ A session must first be established before querying the API. This is done using 
 * `get_daily_client_properties()` to pull daily values of properties for a product within a given date range.
 * `get_raw_data_files()` to retrieve the list of raw data file exports if that add-on is enabled and the download URLs.
 
-You will need your own credentials to use the package. A workflow could be:
 
-```
-  rev_user <- "my_username"
-  rev_pwd <- "super_secret"
-  product_ids_list <- c("123", "456", "789")
-  start_date <- lubridate::floor_date(Sys.Date(), unit = "months") - months(6)
-  end_date <- Sys.Date() - 1
-  session_id <- revulytics_auth(rev_user, rev_pwd)
-  monthly_active_users <- get_active_users(product_ids_list, "active", "month", start_date, end_date, session_id, rev_user)
-  category_event <- get_categories_and_events(product_ids_list, session_id, rev_user)
-  product_properties <- get_product_properties(product_ids_list, session_id, rev_user)
-  client_metadata <- get_client_metadata(product_ids_list, session_id, rev_user, product_properties, c("Property1", "Property2"), start_date, end_date)
-```
-
-More info on the API is available at https://docs.revenera.com/ui560/report/.
+More info on the API is available at https://rui-api.redoc.ly/.
