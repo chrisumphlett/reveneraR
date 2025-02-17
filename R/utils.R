@@ -62,4 +62,4 @@ headers <- c(
   "Origin" = "https://analytics.revenera.com"
 )
 
-utils::globalVariables(c("content_json", "rownames(.data)"))
+utils::globalVariables(c("content_json", "rownames(.)"))

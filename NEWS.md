@@ -1,6 +1,6 @@
-# reveneraR 1.0.9000
+# reveneraR 1.0.1
 
-* Dev version
+* Fixed bug in `get_users()` where it would not parse the api result correctly (and result in an error).
 
 # reveneraR 1.0.0
 
