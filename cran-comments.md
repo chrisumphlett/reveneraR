@@ -1,8 +1,6 @@
-## Updating to 1.x.x due to big re-write
+## Updating to 1.0.1 to fix a bug in the 1.0.0 release
 
-* Package completely rewritten to use v3 of the Revenera API. 
-* Updated dependencies for R version and package versions.
-* Other updates to existing functions.
+* `get_users()` would return an error in certain circumstances. This has been fixed.
 
 ## Test environments
  

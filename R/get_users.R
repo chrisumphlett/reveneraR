@@ -30,7 +30,7 @@
 #' be the first day of inactivity ("dateLastSeen") or date
 #' client is considered lost ("dateDeclaredLost").
 #' @param group_by Optional parameter, clientId by default, but can be changed
-#' to a different property that Revenera would use to group the data.
+#' to a different custom property that Revenera would use to group the data.
 #' @param optional_json Optional JSON text to add to the request body
 #' for things like global filters.
 #'
